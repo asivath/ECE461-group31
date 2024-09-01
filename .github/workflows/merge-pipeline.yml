@@ -1,0 +1,138 @@
+name: Merge Pipeline
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened] # Runs on opening a pr, pushing to a pr, and reopening a pr
+    branches:
+      - 9-environment-setup-and-install-dependencies
+
+jobs:
+  check-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch specific branch
+        run: git fetch origin main:main
+
+      - name: Check for disallowed files and directories
+        id: check_files
+        run: |
+          if git diff --name-only main...HEAD | grep -E 'node_modules/'; then
+            echo "node_modules folder detected, please remove" > disallowed_files.txt
+          fi  
+          if git diff --name-only main...HEAD | grep 'package-lock.json'; then
+            echo "package-lock.json detected, please remove" >> disallowed_files.txt
+          fi
+          if [ -s disallowed_files.txt ]; then
+            echo "disallowed_files_present=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR on disallowed files Failure
+        if: steps.check_files.outputs.disallowed_files_present == 'true'
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const disallowed_files_output = fs.readFileSync('disallowed_files.txt', 'utf8');
+            const message = `🚨 There are files in your PR you need to remove:\n\n\`\`\`\n${disallowed_files_output}\n\`\`\`\n`;
+            const prNumber = context.payload.pull_request.number;
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: prNumber,
+              body: message,
+            });
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for any failures
+        if: steps.check_files.outputs.disallowed_files_present == 'true'
+        run: exit 1
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run ESLint
+        id: eslint
+        run: npm run lint > eslint-output.txt || echo "eslint_failed=true" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Comment PR on ESLint check failure
+        if: steps.eslint.outputs.eslint_failed == 'true'
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const eslintOutput = fs.readFileSync('eslint-output.txt', 'utf8');
+            const message = `🚨 The ESLint check has failed. Please address the following issues:\n\n\`\`\`\n${eslintOutput}\n\`\`\`\nRun 'npm lint' and fix the issues.`;
+            const prNumber = context.payload.pull_request.number;
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: prNumber,
+              body: message,
+            });
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prettify code
+        id: prettier
+        run: |
+          if ! npm run format; then
+            echo "prettify_failed=true" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+
+      - name: Comment PR on Prettier check failure
+        if: steps.prettier.outputs.prettify_failed == 'true'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🚨 The Prettier check has failed. Please run 'npm run format' locally and commit the changes.
+
+      - name: Check for any failures
+        if: steps.eslint.outputs.eslint_failed == 'true' || steps.prettier.outputs.prettify_failed == 'true'
+        run: exit 1
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        id: run_tests
+        run: |
+          # npx coverage:ci > test_output.log 2>&1 || (grep -q 'ERROR: Coverage' test_output.log && echo "coverage_failed=true" >> $GITHUB_OUTPUT) || echo "test_failed=true" >> $GITHUB_OUTPUT
+          npm run test > test_output.log 2>&1
+        continue-on-error: true
+
+      - name: Report Test Errors
+        if: steps.run_tests.outputs.test_failed == 'true'
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const testLog = fs.readFileSync('test_output.log', 'utf8');
+            const prNumber = context.payload.pull_request?.number;
+            if (prNumber) {
+              const message = `🚨 Vitest tests have failed. Please check the test logs for more information.\n\n\`\`\`\n${testLog}\n\`\`\``;
+              github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: prNumber,
+                body: message,
+              });
+            }
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for any test failures
+        if: steps.run_tests.outputs.test_failed == 'true' || steps.run_tests.outputs.coverage_failed == 'true'
+        run: exit 1

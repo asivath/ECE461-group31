@@ -1,0 +1,29 @@
+{
+  "name": "ece461-group31",
+  "version": "1.0.0",
+  "description": "Commit by Ellis Selznick (Ganthry) Commit by Kevin Chang Changk820 Commit by Aditya commit by Dennis Dai(1)",
+  "scripts": {
+    "run": "ts-node src/index.ts",
+    "lint": "eslint src/*.ts --fix",
+    "format": "prettier --write src/*.ts",
+    "quality": "npm run lint && npm run format",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [],
+  "author": "Kevin Chang",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "eslint": "^9.9.1",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.3.0",
+    "vitest": "^2.0.5"
+  }
+}
