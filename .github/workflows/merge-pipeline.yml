@@ -5,6 +5,9 @@ on:
     types: [opened, synchronize, reopened] # Runs on opening a pr, pushing to a pr, and reopening a pr
     branches:
       - 9-environment-setup-and-install-dependencies
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   check-files:
