@@ -1,7 +1,7 @@
 {
   "name": "ece461-group31",
   "version": "1.0.0",
-  "description": "Commit by Ellis Selznick (Ganthry) Commit by Kevin Chang Changk820 Commit by Aditya commit by Dennis Dai(1)",
+  "description": "Package rater for npm packages",
   "scripts": {
     "run": "ts-node src/index.ts",
     "lint": "eslint src/*.ts --fix",
@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "keywords": [],
-  "author": "Kevin Chang",
+  "author": "Aditya Sivathanu, Kevin Chang, Ellis Selznick",
   "license": "ISC",
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
