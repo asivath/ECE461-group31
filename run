@@ -7,7 +7,7 @@ fi
 #Handle install, URL_FILE, and test commands
 case "$1" in
     install)
-        echo "Running installation..."
+        npm install
         # Installation commands TBD
         ;;
     test)
@@ -15,15 +15,10 @@ case "$1" in
         # Test commands TBD
         ;;
     *)
-        echo "regexing url"
-        npm_regex="^https:\/\/www\.npmjs\.com\/package\/.*$"
-        github_regex="^https:\/\/github\.com\/.*$"
-        if [[ $1 =~ $npm_regex ]]; then
-            echo "npm"
-            npx ts-node process_npm.ts $1
-        elif [[ $1 =~ $github_regex ]]; then
-            echo "github"
-            npx ts-node process_npm.ts $1
+        link_regex="^https?:\/\/.*$"
+        if [[ $1 =~ $link_regex ]]; then
+            echo "Parsing with Typescript"
+            npx ts-node ./src/process_url.ts $1
         else
             echo "Invalid URL"
             exit 1
