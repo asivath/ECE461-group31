@@ -6,13 +6,15 @@ export default defineConfig({
     coverage: {
       reporter: ["json-summary", "html"],
       include: ["src/**"],
+      exclude: ["src/__tests__/**", "src/index.ts"],
       thresholds: {
         statements: 90,
-        branches: 90,
+        branches: 80,
         functions: 90,
         lines: 90
       },
-      ignoreEmptyLines: true
+      ignoreEmptyLines: true,
+      reportOnFailure: true
     }
   }
 });

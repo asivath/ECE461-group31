@@ -1,7 +1,22 @@
 import { describe, it, expect, vi, afterEach, beforeAll, beforeEach, afterAll } from "vitest";
 import fs from "fs/promises";
 import path from "path";
-import { getLogger, reinitializeLogger } from "../logger.ts";
+import { getLogger, reinitializeLogger, logTestResults } from "../logger.ts";
+import * as util from "util";
+import * as fsPromises from "fs/promises";
+
+vi.mock("util", async () => {
+  return {
+    promisify: vi.fn().mockReturnValue(vi.fn())
+  };
+});
+vi.mock("fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof fsPromises>();
+  return {
+    ...actual,
+    readFile: vi.fn()
+  };
+});
 
 const logFilePath = path.join("src", "__tests__", "logs", "test.log");
 
@@ -11,6 +26,7 @@ beforeAll(() => {
   process.env.LOG_LEVEL = "2";
   process.env.LOG_FILE = logFilePath;
   process.env.NODE_ENV = "testing";
+  vi.spyOn(console, "log").mockImplementation(() => {});
 });
 
 afterAll(async () => {
@@ -18,7 +34,7 @@ afterAll(async () => {
 });
 
 describe("Logger Tests", () => {
-  let logger = getLogger();
+  let logger: ReturnType<typeof getLogger>;
   let debugSpy: ReturnType<typeof vi.spyOn>;
   let infoSpy: ReturnType<typeof vi.spyOn>;
 
@@ -80,5 +96,90 @@ describe("Logger Tests", () => {
 
     const logContents = await fs.readFile(logFilePath, "utf-8");
     expect(logContents).toBe("");
+  });
+
+  it("should log JSON score messages correctly", async () => {
+    process.env.LOG_LEVEL = "1";
+    reinitializeLogger();
+    logger = getLogger();
+
+    const message = {
+      URL: "https://github.com/nullivex/nodist",
+      NetScore: 0.9,
+      NetScore_Latency: 0.033,
+      RampUp: 0.5,
+      RampUp_Latency: 0.023,
+      Correctness: 0.7,
+      Correctness_Latency: 0.005,
+      BusFactor: 0.3,
+      BusFactor_Latency: 0.002,
+      ResponsiveMaintainer: 0.4,
+      ResponsiveMaintainer_Latency: 0.002,
+      License: 1,
+      License_Latency: 0.001
+    };
+
+    logger.info(message);
+    const logContents = await fs.readFile(logFilePath, "utf-8");
+    expect(logContents).toContain(`[info]: ${JSON.stringify(message, null, 2)}`);
+  });
+
+  it("should run tests and log results", async () => {
+    const mockExec = vi.fn().mockResolvedValue({ stdout: "success" });
+    const mockReadFile = vi
+      .fn()
+      .mockResolvedValueOnce(JSON.stringify({ numTotalTests: 10, numPassedTests: 8 }))
+      .mockResolvedValueOnce(JSON.stringify({ total: { lines: { pct: 80 } } }));
+    const consoleSpy = vi.spyOn(console, "log");
+    vi.spyOn(fsPromises, "readFile").mockImplementation(mockReadFile);
+    vi.spyOn(util, "promisify").mockReturnValue(mockExec);
+
+    await logTestResults();
+
+    expect(mockExec).toHaveBeenCalledWith(
+      "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json"
+    );
+    expect(mockReadFile).toHaveBeenCalledTimes(2);
+    expect(consoleSpy).toHaveBeenCalledWith("Total: 10");
+    expect(consoleSpy).toHaveBeenCalledWith("Passed: 8");
+    expect(consoleSpy).toHaveBeenCalledWith("Coverage: 80%");
+    expect(consoleSpy).toHaveBeenCalledWith("8/10 test cases passed. 80% line coverage achieved.");
+  });
+
+  it("should log an error when running tests fail ", async () => {
+    const mockExec = vi.fn().mockRejectedValue(new Error("Test failure"));
+    const mockReadFile = vi
+      .fn()
+      .mockResolvedValueOnce(JSON.stringify({ numTotalTests: 10, numPassedTests: 8 }))
+      .mockResolvedValueOnce(JSON.stringify({ total: { lines: { pct: 80 } } }));
+    const loggerSpy = vi.spyOn(logger, "debug");
+    vi.spyOn(fsPromises, "readFile").mockImplementation(mockReadFile);
+    vi.spyOn(util, "promisify").mockReturnValue(mockExec);
+
+    await logTestResults();
+
+    expect(mockExec).toHaveBeenCalledWith(
+      "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json"
+    );
+    expect(mockReadFile).toHaveBeenCalledTimes(2);
+    expect(loggerSpy).toHaveBeenCalledWith(
+      "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
+      new Error("Test failure")
+    );
+  });
+
+  it("should log an error when reading test results fail and throw", async () => {
+    const mockExec = vi.fn().mockResolvedValue({ stdout: "success" });
+    const loggerSpy = vi.spyOn(logger, "debug");
+    const readFileSpy = vi.spyOn(fsPromises, "readFile").mockRejectedValueOnce(new Error("File read failure"));
+    vi.spyOn(util, "promisify").mockReturnValue(mockExec);
+
+    await expect(logTestResults()).rejects.toThrow("File read failure");
+
+    expect(mockExec).toHaveBeenCalledWith(
+      "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json"
+    );
+    expect(readFileSpy).toHaveBeenCalledTimes(1);
+    expect(loggerSpy).toHaveBeenCalledWith(new Error("File read failure"));
   });
 });

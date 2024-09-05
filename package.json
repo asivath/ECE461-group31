@@ -5,13 +5,13 @@
   "description": "Package rater for npm packages",
   "scripts": {
     "start": "tsx src/index.ts",
-    "lint": "eslint '**/*.ts' --fix",
-    "format": "prettier --write '**/*.ts'",
+    "lint": "eslint '**/*.{ts,mjs,json}' --fix",
+    "format": "prettier --write '**/*.{ts,mjs,json}'",
     "quality": "npm run format && npm run lint",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:script": "vitest run --coverage --silent --reporter=json --outputFile=test-results.json > /dev/null 2>&1"
+    "test:script": "vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json > /dev/null 2>&1"
   },
   "keywords": [],
   "author": "Aditya Sivathanu, Kevin Chang, Ellis Selznick",
