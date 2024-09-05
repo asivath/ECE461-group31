@@ -92,7 +92,7 @@ jobs:
       - name: Run Tests
         id: run_tests
         run: |
-          npm run test:coverage > test_output.log 2>&1 || echo "test_failed=true" >> $GITHUB_OUTPUT
+          npm run test:cicd > test_output.log 2>&1 || echo "test_failed=true" >> $GITHUB_OUTPUT
 
       - name: Comment PR on test failure
         if: steps.run_tests.outputs.test_failed == 'true'
