@@ -111,8 +111,7 @@ jobs:
       - name: Run Tests
         id: run_tests
         run: |
-          # npx coverage:ci > test_output.log 2>&1 || (grep -q 'ERROR: Coverage' test_output.log && echo "coverage_failed=true" >> $GITHUB_OUTPUT) || echo "test_failed=true" >> $GITHUB_OUTPUT
-          npm run test > test_output.log 2>&1
+          npm run test:coverage > test_output.log 2>&1 || echo "test_failed=true" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - name: Report Test Errors
@@ -134,5 +133,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for any test failures
-        if: steps.run_tests.outputs.test_failed == 'true' || steps.run_tests.outputs.coverage_failed == 'true'
+        if: steps.run_tests.outputs.test_failed == 'true'
         run: exit 1
