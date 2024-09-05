@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+
 abstract class URLHandler {
     abstract handleURL(url: string): void;
     repoInfo: {
@@ -18,7 +20,7 @@ abstract class URLHandler {
 
 class NpmURLHandler extends URLHandler {
 
-    handleURL(url: string): void {
+    async handleURL(url: string): Promise<void> {
         // Logic to handle npm URLs
         const packageName = url.split('/').pop();
         if (!packageName) {
@@ -32,7 +34,7 @@ class NpmURLHandler extends URLHandler {
                 return response.json();
             })
             .then((data) => {
-                console.log("data", data);
+                // console.log("data", data);
                 this.repoInfo = {
                     name: data.name,
                     repo: data.repository.url,
@@ -49,7 +51,7 @@ class NpmURLHandler extends URLHandler {
 
 
 class GitHubURLHandler extends URLHandler {
-    handleURL(url: string): void {
+    async handleURL(url: string): Promise<void> {
         // Logic to handle GitHub URLs
         const repoUrlParts = url.split('/');
         const owner = repoUrlParts[3];
@@ -61,7 +63,7 @@ class GitHubURLHandler extends URLHandler {
                 return response.json();
             })
             .then((data) => {
-                console.log("data", data);
+                // console.log("data", data);
                 // Assign the data to the repoInfo object
                 this.repoInfo = {
                     name: data.name,
@@ -78,19 +80,20 @@ class GitHubURLHandler extends URLHandler {
 }
 
 
-function parser(url: string): string {
+async function parser(url: string): Promise<string> {
     // Logic to parse URL
+    const trimmedUrl = url.trim();
     const npmRegex = /^https:\/\/www\.npmjs\.com\/package\/.*$/;
     const githubRegex = /^https:\/\/github\.com\/.*$/;
     
-    if (npmRegex.test(url)) {
+    if (npmRegex.test(trimmedUrl)) {
         console.log("NPM URL");
         const npmHandler = new NpmURLHandler();
-        npmHandler.handleURL(url);
-    } else if (githubRegex.test(url)) {
+        await npmHandler.handleURL(trimmedUrl);
+    } else if (githubRegex.test(trimmedUrl)) {
         console.log("GitHub URL");
         const githubHandler = new GitHubURLHandler();
-        githubHandler.handleURL(url);
+        await githubHandler.handleURL(trimmedUrl);
     } else {
         console.log("Invalid URL");
     }
@@ -98,8 +101,16 @@ function parser(url: string): string {
     return url;
 }
 
-//arg from command line
-const url = process.argv[2];
-console.log("Working with URL:", url);
-parser(url);
+const filePath = process.argv[2];
+
+// Read the file and get the URLs
+const urls = fs.readFileSync(filePath, 'utf-8').trim().split('\n');
+
+for (const url of urls) {
+    console.log("Working with URL:", url);
+    parser(url);
+}
+
+// console.log("Working with file:", url);
+// parser(url);
 

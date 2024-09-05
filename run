@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
+    echo "no command entered"
     exit 1
 fi
 
@@ -8,20 +9,19 @@ fi
 case "$1" in
     install)
         npm install
-        # Installation commands TBD
-        ;;
-    test)
-        echo "Running tests..."
-        # Test commands TBD
-        ;;
-    *)
-        link_regex="^https?:\/\/.*$"
-        if [[ $1 =~ $link_regex ]]; then
-            echo "Parsing with Typescript"
-            npx ts-node ./src/process_url.ts $1
+        if [ $? -eq 0 ]; then
+            echo "Dependencies installed successfully."
         else
-            echo "Invalid URL"
+            echo "Failed to install dependencies."
             exit 1
         fi
+        # Installation commands TBD
         ;;
+    # test)
+    #     echo "Running tests..."
+    #     # Test commands TBD
+    #     ;;
+    *)
+        npx ts-node ./src/process_url.ts "$@"
+    ;;
 esac
