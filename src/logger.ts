@@ -11,7 +11,7 @@ type CustomLogger = {
   debug: winston.LeveledLogMethod;
 };
 
-export let bareLogger: CustomLogger | null = null;
+let bareLogger: CustomLogger | null = null;
 
 const initializeLogger = () => {
   const logLevel = (() => {
