@@ -1,4 +1,7 @@
-// import { vitest } from "vitest";
+import { exit } from "process";
+import { logTestResults } from "./logger.ts";
 
-console.log("NYAHALLO");
-console.log("あくあ色に染まれ！！！");
+await logTestResults().catch((err) => {
+  console.error(err);
+  exit(1);
+});

@@ -8,28 +8,28 @@ import { FlatCompat } from "@eslint/eslintrc";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all
 });
 
 export default [
-    ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"),
-    {
-        plugins: {
-            "@typescript-eslint": typescriptEslint,
-        },
-
-        languageOptions: {
-            globals: {},
-            parser: tsParser,
-            ecmaVersion: 12,
-            sourceType: "module",
-        },
-
-        rules: {
-            "@typescript-eslint/no-unused-vars": "error",
-            "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-        },
+  ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"),
+  {
+    plugins: {
+      "@typescript-eslint": typescriptEslint
     },
+
+    languageOptions: {
+      globals: {},
+      parser: tsParser,
+      ecmaVersion: 12,
+      sourceType: "module"
+    },
+
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"]
+    }
+  }
 ];
