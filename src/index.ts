@@ -1,6 +1,5 @@
 import { exit } from "process";
-import { logTestResults } from "./logger.ts";
-import { getLogger } from "./logger.ts";
+import { getLogger, logTestResults } from "./logger.ts";
 
 const logger = getLogger();
 
@@ -25,5 +24,5 @@ switch (commandOrFile) {
   default:
     logger.info("Processing URL file");
     // TODO: Run URL processing
-    console.error("Command not implemented for: ", commandOrFile);
+    console.log("Command not implemented for: ", commandOrFile);
 }

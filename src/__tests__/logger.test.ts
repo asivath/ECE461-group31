@@ -25,7 +25,7 @@ beforeAll(() => {
   vi.setSystemTime(mockDate);
   process.env.LOG_LEVEL = "2";
   process.env.LOG_FILE = logFilePath;
-  process.env.NODE_ENV = "testing";
+  process.env.NODE_ENV = "test";
   vi.spyOn(console, "log").mockImplementation(() => {});
 });
 

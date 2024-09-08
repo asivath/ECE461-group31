@@ -79,15 +79,18 @@ export const logTestResults = async () => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const asyncExec = promisify(exec);
+  // avoid running index.test.ts in E2E tests to prevent infinite loop
+  const command =
+    process.env.NODE_ENV === "test"
+      ? "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json --exclude index.test.ts"
+      : "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json";
   try {
-    await asyncExec("npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json").catch(
-      (error) => {
-        logger.debug(
-          "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
-          error
-        );
-      }
-    );
+    await asyncExec(command).catch((error) => {
+      logger.debug(
+        "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
+        error
+      );
+    });
     const file = await readFile(path.resolve(__dirname, "..", "coverage", "test-results.json"), "utf-8");
     const results = JSON.parse(file);
     const totalTests = results.numTotalTests;
