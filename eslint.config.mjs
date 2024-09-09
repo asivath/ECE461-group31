@@ -29,7 +29,8 @@ export default [
 
     rules: {
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/consistent-type-definitions": ["error", "type"]
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "no-unreachable": "error"
     }
   }
 ];
