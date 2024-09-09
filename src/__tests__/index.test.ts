@@ -33,13 +33,16 @@ describe("E2E Test", () => {
     const scriptPath = path.resolve(__dirname, "..", "..", "run");
     const tmpScriptPath = path.join(tmpDir, "run");
     await fs.copyFile(scriptPath, tmpScriptPath);
+    const nodeModulesPath = path.join(__dirname, "..", "..", "node_modules");
+    const tmpNodeModulesPath = path.join(tmpDir, "node_modules");
+    await fs.cp(nodeModulesPath, tmpNodeModulesPath, { recursive: true });
   });
 
   afterAll(async () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
-  it('should install dependencies using the "install" command', { timeout: 30000 }, async () => {
+  it('should install dependencies using the "install" command', { timeout: 10000 }, async () => {
     const { stdout, stderr } = await execAsync("./run install", { cwd: tmpDir });
 
     expect(stderr).toBe("");
@@ -86,7 +89,7 @@ describe("E2E Test", () => {
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
       expect(totalTests).toBe(8);
       expect(totalPassed).toBe(8);
-      expect(lineCoverage).toBe(90.58);
+      expect(lineCoverage).toBe(91.2);
     }
   });
 
