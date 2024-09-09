@@ -82,7 +82,7 @@ export const logTestResults = async () => {
   // avoid running index.test.ts in E2E tests to prevent infinite loop
   const command =
     process.env.NODE_ENV === "test"
-      ? "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json --exclude index.test.ts"
+      ? "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json --exclude src/__tests__/index.test.ts"
       : "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json";
   try {
     await asyncExec(command).catch((error) => {
