@@ -3,4 +3,3 @@ node_modules
 logs
 coverage
 .vsls.json
-e2e-test

@@ -17,7 +17,7 @@ type ExecError = {
   code: number;
   signal: string | null;
   cmd: string;
-} & Error
+} & Error;
 
 describe("E2E Test", () => {
   const execAsync = promisify(exec);

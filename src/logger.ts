@@ -83,7 +83,7 @@ export const logTestResults = async () => {
   const command =
     process.env.NODE_ENV === "test"
       ? "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json --exclude src/__tests__/index.test.ts"
-      : "npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json";
+      : "npx vitest run --silent";
   try {
     await asyncExec(command).catch((error) => {
       logger.debug(
