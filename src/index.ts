@@ -1,6 +1,7 @@
 import { exit } from "process";
 import { getLogger, logTestResults } from "./logger.ts";
 import { processURLs } from "./processURL.ts";
+import { log } from "winston";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -24,6 +25,11 @@ switch (commandOrFile) {
       console.error(e);
       exit(1);
     });
+    break;
+  case "consolelog":
+    logger.console("あくあいろに染まれ！！！");
+    // logger.info("Hi friends!!!")
+    logTestResults();
     break;
   default:
     logger.info("Processing URL file");
