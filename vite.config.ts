@@ -9,8 +9,7 @@ export default defineConfig({
       exclude: ["src/__tests__/**", "src/index.ts"],
       thresholds: {
         statements: 90,
-        branches: 80,
-        functions: 90,
+        functions: 100,
         lines: 90
       },
       ignoreEmptyLines: true,

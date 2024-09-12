@@ -1,6 +1,6 @@
 import winston from "winston";
 import path from "path";
-import { readFile } from "fs/promises";
+import { readFile, rm } from "fs/promises";
 import { fileURLToPath } from "url";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -79,20 +79,26 @@ export const logTestResults = async () => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const asyncExec = promisify(exec);
+  // avoid running index.test.ts in E2E tests to prevent infinite loop
+  const command =
+    process.env.NODE_ENV === "test"
+      ? "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
+      : "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json";
   try {
-    await asyncExec("npx vitest run --coverage --silent --reporter=json --outputFile=coverage/test-results.json").catch(
-      (error) => {
-        logger.debug(
-          "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
-          error
-        );
-      }
-    );
-    const file = await readFile(path.resolve(__dirname, "..", "coverage", "test-results.json"), "utf-8");
+    await asyncExec(command).catch((error) => {
+      logger.debug(
+        "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
+        error
+      );
+    });
+    const file = await readFile(path.resolve(__dirname, "..", "logCoverage", "test-results.json"), "utf-8");
     const results = JSON.parse(file);
     const totalTests = results.numTotalTests;
     const totalPassed = results.numPassedTests;
-    const coverageSummary = await readFile(path.resolve(__dirname, "..", "coverage", "coverage-summary.json"), "utf-8");
+    const coverageSummary = await readFile(
+      path.resolve(__dirname, "..", "logCoverage", "coverage-summary.json"),
+      "utf-8"
+    );
     const coverage = JSON.parse(coverageSummary);
     const lineCoverage = coverage.total.lines.pct;
     console.log(`Total: ${totalTests}`);
@@ -102,5 +108,8 @@ export const logTestResults = async () => {
   } catch (error) {
     logger.debug(error);
     throw error;
+  } finally {
+    if (process.env.NODE_ENV !== "test")
+      await rm(path.resolve(__dirname, "..", "logCoverage"), { recursive: true, force: true });
   }
 };
