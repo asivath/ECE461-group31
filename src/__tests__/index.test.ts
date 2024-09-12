@@ -87,9 +87,9 @@ describe("E2E Test", () => {
 
       // Instead of being smart and actually trying to calculate the actual values (we would need to subtact the index.test.ts tests), we will just hardcode it, so these needs to be updated if the tests are updated
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
-      expect(totalTests).toBe(8);
-      expect(totalPassed).toBe(8);
-      expect(lineCoverage).toBe(91.2);
+      expect(totalTests).toBe(14);
+      expect(totalPassed).toBe(14);
+      expect(lineCoverage).toBe(91.87);
     }
   });
 
@@ -97,7 +97,7 @@ describe("E2E Test", () => {
     const { stdout, stderr } = await execAsync("./run myFile.txt");
 
     expect(stderr).toBe("");
-    expect(stdout).toContain("Command not implemented for:  myFile.txt");
+    expect(stdout).toContain("Command TBD");
   });
 
   it("should fail with no command provided", async () => {
