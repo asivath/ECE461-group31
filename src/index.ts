@@ -12,7 +12,6 @@ if (args.length === 0) {
 }
 
 const commandOrFile = args[0];
-let results = [];
 
 switch (commandOrFile) {
   case "test":
@@ -26,7 +25,7 @@ switch (commandOrFile) {
   default:
     logger.info("Processing URL file");
     // TODO: Run URL processing
-    results = await processURLs(commandOrFile);
+    await processURLs(commandOrFile);
     // console.log("results are: ", results);
     console.log("Command TBD");
 }
