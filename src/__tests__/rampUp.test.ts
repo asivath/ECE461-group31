@@ -1,5 +1,5 @@
 import { describe, test, vi, expect, beforeEach } from "vitest";
-import { calculateRampUpScore } from "../rampUp.ts";
+import { calculateRampUpScore } from "../metrics/rampUp.ts";
 import { getLogger } from "../logger.ts";
 import * as graphqlClientModule from "../graphqlClient.ts";
 import * as utilModule from "util";
