@@ -3,3 +3,5 @@ node_modules
 logs
 coverage
 .vsls.json
+logCoverage
+repos

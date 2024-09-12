@@ -1,6 +1,9 @@
 import { exit } from "process";
 import { getLogger, logTestResults } from "./logger.ts";
 import { processURLs } from "./processURL.ts";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const logger = getLogger();
 
@@ -28,4 +31,16 @@ switch (commandOrFile) {
     await processURLs(commandOrFile);
     // console.log("results are: ", results);
     console.log("Command TBD");
+}
+
+// if repos dir exists, remove it
+try {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const reposDir = path.resolve(__dirname, "..", "repos");
+  await fs.rm(reposDir, { recursive: true, force: true });
+} catch (error) {
+  if (!(error as Error).message.includes("no such file or directory")) {
+    logger.debug("Error removing repos directory", error);
+  }
 }
