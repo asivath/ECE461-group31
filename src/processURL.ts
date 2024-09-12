@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import { getLogger } from "./logger.ts";
-import {returnRepo} from "./types.ts"
+import { returnRepo } from "./types.ts";
 
 const logger = getLogger();
 
@@ -8,7 +8,8 @@ const logger = getLogger();
 export async function getGithubRepo(url: string): Promise<returnRepo> {
   const trimmedUrl = url.trim();
   const npmRegex = /^https:\/\/www\.npmjs\.com\/package\/(?<packageName>[a-zA-Z0-9\-_]+)$/;
-  const githubRegex = /^(ssh:\/\/git@|https:\/\/)?github\.com\/(?<owner>[a-zA-Z0-9\-_]+)\/(?<packageName>[a-zA-Z0-9\-_]+)(?:\.git)?$/;
+  const githubRegex =
+    /^(ssh:\/\/git@|https:\/\/)?github\.com\/(?<owner>[a-zA-Z0-9\-_]+)\/(?<packageName>[a-zA-Z0-9\-_]+)(?:\.git)?$/;
 
   if (npmRegex.test(trimmedUrl)) {
     logger.info("NPM URL");
@@ -53,7 +54,6 @@ export async function getGithubRepo(url: string): Promise<returnRepo> {
 
   return null;
 }
-
 
 // Read the file and get the URLs
 export async function processURLs(filePath: string) {

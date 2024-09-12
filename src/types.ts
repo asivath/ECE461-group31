@@ -1,4 +1,4 @@
 export type returnRepo = {
-    owner: string;
-    packageName: string;
-  }|null;
+  owner: string;
+  packageName: string;
+} | null;
