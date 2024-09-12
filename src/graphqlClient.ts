@@ -67,3 +67,34 @@ export const GET_VALUES_FOR_RAMPUP = gql`
     }
   }
 `;
+
+export const GET_VALUES_FOR_CORRECTNESS = gql`
+  query getPRsAndCommits($repoOwner: String!, $repoName: String!, $firstPRs: Int!, $firstCommits: Int!) {
+    repository(owner: $repoOwner, name: $repoName) {
+      pullRequests(first: $firstPRs, states: MERGED, orderBy: {field: CREATED_AT, direction: DESC}) {
+        edges {
+          node {
+            createdAt
+            mergedAt
+          }
+        }
+      }
+      refs(refPrefix: "refs/heads/", first: $firstCommits) {
+        nodes {
+          target {
+            ... on Commit {
+              committedDate
+              history(first: 1) {
+                edges {
+                  node {
+                    committedDate
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
