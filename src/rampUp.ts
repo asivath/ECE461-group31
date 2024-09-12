@@ -2,12 +2,9 @@ import { graphqlClient, GET_VALUES_FOR_CORRECTNESS } from "./graphqlClient.ts";
 import { RampUpResponse } from "./types.ts";
 import { differenceInDays } from "date-fns";
 import { getLogger } from "./logger.ts";
-import { SimpleGit, simpleGit } from "simple-git";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs/promises";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { cloneRepo } from "./util.ts";
 
 const logger = getLogger();
 
@@ -75,21 +72,16 @@ async function calculateDocumentationWeight(
   repoOwner: string,
   repoName: string
 ): Promise<number> {
-  try {
-    const readme = data.repository.object;
-    const contributing = data.repository.contributing;
-    if (readme && contributing) {
-      logger.debug(`Found README and CONTRIBUTING for repo ${repoOwner}/${repoName}`);
-      return 1;
-    } else if (readme || contributing) {
-      logger.debug(`Found README or CONTRIBUTING for repo ${repoOwner}/${repoName}`);
-      return 0.9;
-    } else {
-      logger.debug(`No README or CONTRIBUTING found for repo ${repoOwner}/${repoName}`);
-      return 0.8;
-    }
-  } catch (error) {
-    logger.info("Error fetching documentation:", error);
+  const readme = data.repository.object;
+  const contributing = data.repository.contributing;
+  if (readme && contributing) {
+    logger.debug(`Found README and CONTRIBUTING for repo ${repoOwner}/${repoName}`);
+    return 1;
+  } else if (readme || contributing) {
+    logger.debug(`Found README or CONTRIBUTING for repo ${repoOwner}/${repoName}`);
+    return 0.9;
+  } else {
+    logger.debug(`No README or CONTRIBUTING found for repo ${repoOwner}/${repoName}`);
     return 0.8;
   }
 }
@@ -98,7 +90,6 @@ async function calculateTargetTime(repoDir: string): Promise<number> {
   const execPromise = promisify(exec);
   try {
     const { stdout } = await execPromise(`npx cloc ${repoDir}`);
-    logger.debug(`CLOC output: ${stdout}`);
     const linesOfCode = stdout.split("\n").find((line) => line.startsWith("SUM"));
     const loc = linesOfCode?.split(/\s+/)[4];
     logger.debug(`Lines of code: ${loc}`);
@@ -124,31 +115,5 @@ async function calculateTargetTime(repoDir: string): Promise<number> {
   } catch (error) {
     logger.info("Error calculating target time:", error);
     return 7;
-  }
-}
-
-/**
- * Clone a repository from a given URL
- * @param repoUrl The URL of the repository to clone
- * @param repoName The name of the repository
- * @returns The path to the cloned repository or null if an error occurred
- */
-export async function cloneRepo(repoUrl: string, repoName: string): Promise<string | null> {
-  const git: SimpleGit = simpleGit();
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const repoDir = path.resolve(__dirname, "..", "repos", repoName);
-  try {
-    await fs.mkdir(repoDir, { recursive: true });
-    await git.clone(repoUrl, repoDir);
-    logger.info(`Repository cloned to ${repoDir}`);
-    return repoDir;
-  } catch (error) {
-    if ((error as Error).message.includes("already exists")) {
-      logger.info(`Repository already cloned to ${repoDir}`);
-      return repoDir;
-    }
-    logger.info("Error cloning repository:", error);
-    return null;
   }
 }
