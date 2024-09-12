@@ -83,7 +83,6 @@ export async function processURLs(filePath: string) {
     results.push(repo);
     //Get repo netscore stuff
   }
-  console.log("results are: ", results);
   logger.info("results are: ", results);
   return results;
 }

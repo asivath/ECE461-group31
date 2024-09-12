@@ -46,7 +46,7 @@ describe("getGithubRepo", () => {
 
     it("should fetch and return the GitHub repo URL when given an NPM package URL", async () => {
         const npmUrl = "https://www.npmjs.com/package/some-package";
-        const mockedRepoUrl = "https://github.com/user/repo";
+        const mockedRepoUrl = "git+https://github.com/user/repo.git";
 
         (global.fetch as Mock).mockResolvedValueOnce({
             json: async () => ({
@@ -95,9 +95,7 @@ describe('processURLs', () => {
         expect(result).toEqual([]);
     });
 
-    it("Should test file input and return an array of package repos with package name and owner", async () => {
-      vi.restoreAllMocks(); 
-    
+    it("Should test file input and return an array of package repos with package name and owner", async () => {    
       const expected = [
         { packageName: 'cloudinary_npm', owner: 'cloudinary' },
         { packageName: 'nodist', owner: 'nullivex' },
@@ -110,8 +108,6 @@ https://github.com/nullivex/nodist
 https://github.com/lodash/lodash`);
 
         const result = await processURLs(filePath);
-
-        console.log("Actual results: ", result);
 
         expect(result).toEqual(expected);
     });
