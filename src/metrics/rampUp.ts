@@ -25,7 +25,7 @@ export async function calculateRampUpScore(repoOwner: string, repoName: string, 
     const averageDays = await calculateAverageDaysToFirstActivity(data);
     const documentationWeight = await calculateDocumentationWeight(data, repoOwner, repoName);
     const repoDir = await cloneRepo(`https://github.com/${repoOwner}/${repoName}.git`, repoName);
-    const targetTime = repoDir ? await calculateTargetTime(repoDir) : 7;
+    const targetTime = repoDir ? await calculateTargetTime(repoDir) : 21;
     const constant = targetTime / Math.log(1.05);
     const averageTimeValue = Math.max(Math.exp(-(averageDays - targetTime) / constant), 0.3);
     const score = Math.min(1, averageTimeValue * documentationWeight);
@@ -111,9 +111,8 @@ async function calculateTargetTime(repoDir: string): Promise<number> {
         return 60;
       }
     }
-    return 7;
   } catch (error) {
     logger.info("Error calculating target time:", error);
-    return 7;
   }
+  return 21;
 }
