@@ -4,17 +4,18 @@ import { processURLs } from "./processURL.ts";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { calculateCorrectness } from "./metrics/correctness.ts";
 
-const logger = getLogger();
+// const logger = getLogger();
 
-const args = process.argv.slice(2);
+// const args = process.argv.slice(2);
 
-if (args.length === 0) {
-  console.error("No command provided");
-  process.exit(1);
-}
+// if (args.length === 0) {
+//   console.error("No command provided");
+//   process.exit(1);
+// }
 
-const commandOrFile = args[0];
+// const commandOrFile = args[0];
 
 switch (commandOrFile) {
   case "test":
@@ -32,14 +33,16 @@ switch (commandOrFile) {
     console.log("Command TBD");
 }
 
-// if repos dir exists, remove it
-try {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const reposDir = path.resolve(__dirname, "..", "repos");
-  await fs.rm(reposDir, { recursive: true, force: true });
-} catch (error) {
-  if (!(error as Error).message.includes("no such file or directory")) {
-    logger.debug("Error removing repos directory", error);
-  }
-}
+// // if repos dir exists, remove it
+// try {
+//   const __filename = fileURLToPath(import.meta.url);
+//   const __dirname = path.dirname(__filename);
+//   const reposDir = path.resolve(__dirname, "..", "repos");
+//   await fs.rm(reposDir, { recursive: true, force: true });
+// } catch (error) {
+//   if (!(error as Error).message.includes("no such file or directory")) {
+//     logger.debug("Error removing repos directory", error);
+//   }
+// }
+
+console.log(await calculateCorrectness("fastify", "fastify"));
