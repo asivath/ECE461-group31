@@ -37,18 +37,21 @@ describe("Logger Tests", () => {
   let logger: ReturnType<typeof getLogger>;
   let debugSpy: ReturnType<typeof vi.spyOn>;
   let infoSpy: ReturnType<typeof vi.spyOn>;
+  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     reinitializeLogger();
     logger = getLogger();
     debugSpy = vi.spyOn(logger, "debug");
     infoSpy = vi.spyOn(logger, "info");
+    consoleLogSpy = vi.spyOn(console, "log");
     await fs.writeFile(logFilePath, "");
   });
 
   afterEach(() => {
     debugSpy.mockClear();
     infoSpy.mockClear();
+    consoleLogSpy.mockClear();
   });
 
   it("Should log a debug message when logger.debug is called", async () => {
@@ -179,5 +182,59 @@ describe("Logger Tests", () => {
     );
     expect(readFileSpy).toHaveBeenCalledTimes(1);
     expect(loggerSpy).toHaveBeenCalledWith(new Error("File read failure"));
+  });
+
+  it("should print to console and not log to file when verbosity is 3 or higher", async () => {
+    process.env.LOG_LEVEL = "3";
+    reinitializeLogger();
+    logger = getLogger();
+
+    logger.console("This is a console message");
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("This is a console message");
+    expect(infoSpy).not.toHaveBeenCalled();
+
+    const logContents = await fs.readFile(logFilePath, "utf-8");
+    expect(logContents).toBe("");
+  });
+
+  it("should print to console and log to file when verbosity is 1", async () => {
+    process.env.LOG_LEVEL = "1";
+    reinitializeLogger();
+    logger = getLogger();
+    logger.console("This is a console message");
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("This is a console message");
+
+    const logContents = await fs.readFile(logFilePath, "utf-8");
+    expect(logContents).toBe(`01/02/2021 00:00:00 [info]: This is a console message\n`);
+  });
+
+  it("should print to console and log to file when verbosity is 2", async () => {
+    process.env.LOG_LEVEL = "2";
+    reinitializeLogger();
+    logger = getLogger();
+    logger.console("This is a console message");
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("This is a console message");
+
+    const logContents = await fs.readFile(logFilePath, "utf-8");
+    expect(logContents).toBe(`01/02/2021 00:00:00 [info]: This is a console message\n`);
+  });
+
+  it("should not log to console with info and debug", async () => {
+    process.env.LOG_LEVEL = "2";
+    reinitializeLogger();
+    logger = getLogger();
+
+    logger.debug("This is a debug message");
+    logger.info("This is an info message");
+
+    expect(consoleLogSpy).not.toHaveBeenCalled();
+
+    const logContents = await fs.readFile(logFilePath, "utf-8");
+    expect(logContents).toBe(
+      `01/02/2021 00:00:00 [debug]: This is a debug message\n01/02/2021 00:00:00 [info]: This is an info message\n`
+    );
   });
 });

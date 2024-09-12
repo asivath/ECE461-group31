@@ -39,20 +39,21 @@ const initializeLogger = () => {
 
   const logDir = process.env.LOG_FILE || "logs/default.log";
 
-  const logger = winston.createLogger({
+  // Create the logger instance and directly assign it to bareLogger
+  bareLogger = winston.createLogger({
     level: logLevel,
     format: fileLogFormat,
     transports: [new winston.transports.File({ filename: logDir })],
-    silent: logLevel === "silent"
-  });
+    silent: logLevel === "silent",
+  }) as unknown as CustomLogger;
 
-  const customLogger = logger as unknown as CustomLogger;
-  customLogger.console = (message: string) => {
-    customLogger.info(message); // Log as info to the file
-    console.log(message); // Log specifically to console
+  // Directly add the custom console method to bareLogger
+  bareLogger.console = (message: string) => {
+    console.log(message); // Always print to console
+    if (logLevel === "info" || logLevel === "debug") {
+      bareLogger!.info(message); // Log to file if verbosity is 1 or 2
+    }
   };
-
-  bareLogger = customLogger;
 };
 
 /**

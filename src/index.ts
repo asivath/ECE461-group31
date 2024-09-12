@@ -26,11 +26,6 @@ switch (commandOrFile) {
       exit(1);
     });
     break;
-  case "consolelog":
-    logger.console("あくあいろに染まれ！！！");
-    // logger.info("Hi friends!!!")
-    logTestResults();
-    break;
   default:
     logger.info("Processing URL file");
     // TODO: Run URL processing
