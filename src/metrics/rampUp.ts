@@ -1,23 +1,23 @@
-import { graphqlClient, GET_VALUES_FOR_CORRECTNESS } from "./graphqlClient.ts";
-import { RampUpResponse } from "./types.ts";
+import { graphqlClient, GET_VALUES_FOR_RAMPUP } from "../graphqlClient.ts";
+import { RampUpResponse } from "../types.ts";
 import { differenceInDays } from "date-fns";
-import { getLogger } from "./logger.ts";
+import { getLogger } from "../logger.ts";
 import { exec } from "child_process";
 import { promisify } from "util";
-import { cloneRepo } from "./util.ts";
+import { cloneRepo } from "../util.ts";
 
 const logger = getLogger();
 
 /**
- * Calculate the correctness score of a repository
+ * Calculate the rampUp score of a repository
  * @param repoOwner The owner of the repository
  * @param repoName The name of the repository
  * @param firstForks The number of forks to fetch
- * @returns The correctness score of the repository
+ * @returns The rampUp score of the repository
  */
 export async function calculateRampUpScore(repoOwner: string, repoName: string, firstForks = 50): Promise<number> {
   try {
-    const data: RampUpResponse = await graphqlClient.request(GET_VALUES_FOR_CORRECTNESS, {
+    const data: RampUpResponse = await graphqlClient.request(GET_VALUES_FOR_RAMPUP, {
       repoOwner,
       repoName,
       firstForks

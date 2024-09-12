@@ -10,7 +10,7 @@ export const graphqlClient = new GraphQLClient(endpoint, {
   }
 });
 
-export const GET_VALUES_FOR_CORRECTNESS = gql`
+export const GET_VALUES_FOR_RAMPUP = gql`
   query getForksAndPRs($repoOwner: String!, $repoName: String!, $firstForks: Int!) {
     repository(owner: $repoOwner, name: $repoName) {
       forks(first: $firstForks) {
