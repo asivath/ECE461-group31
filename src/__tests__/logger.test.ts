@@ -126,20 +126,19 @@ describe("Logger Tests", () => {
 
   it("should run tests and log results", async () => {
     const mockExec = vi.fn().mockResolvedValue({ stdout: "success" });
-    const mockReadFile = vi
-      .fn()
+    const consoleSpy = vi.spyOn(console, "log");
+    const readFileSpy = vi
+      .spyOn(fsPromises, "readFile")
       .mockResolvedValueOnce(JSON.stringify({ numTotalTests: 10, numPassedTests: 8 }))
       .mockResolvedValueOnce(JSON.stringify({ total: { lines: { pct: 80 } } }));
-    const consoleSpy = vi.spyOn(console, "log");
-    vi.spyOn(fsPromises, "readFile").mockImplementation(mockReadFile);
-    vi.spyOn(util, "promisify").mockReturnValue(mockExec);
+    vi.spyOn(util, "promisify").mockReturnValueOnce(mockExec);
 
     await logTestResults();
 
     expect(mockExec).toHaveBeenCalledWith(
       "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
     );
-    expect(mockReadFile).toHaveBeenCalledTimes(2);
+    expect(readFileSpy).toHaveBeenCalledTimes(2);
     expect(consoleSpy).toHaveBeenCalledWith("Total: 10");
     expect(consoleSpy).toHaveBeenCalledWith("Passed: 8");
     expect(consoleSpy).toHaveBeenCalledWith("Coverage: 80%");
@@ -148,20 +147,19 @@ describe("Logger Tests", () => {
 
   it("should log an error when running tests fail ", async () => {
     const mockExec = vi.fn().mockRejectedValue(new Error("Test failure"));
-    const mockReadFile = vi
-      .fn()
+    const loggerSpy = vi.spyOn(logger, "debug");
+    const readFileSpy = vi
+      .spyOn(fsPromises, "readFile")
       .mockResolvedValueOnce(JSON.stringify({ numTotalTests: 10, numPassedTests: 8 }))
       .mockResolvedValueOnce(JSON.stringify({ total: { lines: { pct: 80 } } }));
-    const loggerSpy = vi.spyOn(logger, "debug");
-    vi.spyOn(fsPromises, "readFile").mockImplementation(mockReadFile);
-    vi.spyOn(util, "promisify").mockReturnValue(mockExec);
+    vi.spyOn(util, "promisify").mockReturnValueOnce(mockExec);
 
     await logTestResults();
 
     expect(mockExec).toHaveBeenCalledWith(
       "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
     );
-    expect(mockReadFile).toHaveBeenCalledTimes(2);
+    expect(readFileSpy).toHaveBeenCalledTimes(2);
     expect(loggerSpy).toHaveBeenCalledWith(
       "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
       new Error("Test failure")
@@ -172,7 +170,7 @@ describe("Logger Tests", () => {
     const mockExec = vi.fn().mockResolvedValue({ stdout: "success" });
     const loggerSpy = vi.spyOn(logger, "debug");
     const readFileSpy = vi.spyOn(fsPromises, "readFile").mockRejectedValueOnce(new Error("File read failure"));
-    vi.spyOn(util, "promisify").mockReturnValue(mockExec);
+    vi.spyOn(util, "promisify").mockReturnValueOnce(mockExec);
 
     await expect(logTestResults()).rejects.toThrow("File read failure");
 
