@@ -36,6 +36,7 @@
     "vitest": "^2.0.5"
   },
   "dependencies": {
+    "@octokit/rest": "^21.0.2",
     "cloc": "^2.2.0-cloc",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",

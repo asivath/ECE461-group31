@@ -1,3 +1,7 @@
+export type returnRepo = {
+  owner: string;
+  packageName: string;
+} | null;
 export type Fork = {
   owner: {
     login: string;

@@ -97,7 +97,7 @@ describe("E2E Test", () => {
     const { stdout, stderr } = await execAsync("./run myFile.txt");
 
     expect(stderr).toBe("");
-    expect(stdout).toContain("Command not implemented for:  myFile.txt");
+    expect(stdout).toContain("Command TBD");
   });
 
   it("should fail with no command provided", async () => {

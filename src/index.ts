@@ -1,5 +1,6 @@
 import { exit } from "process";
 import { getLogger, logTestResults } from "./logger.ts";
+import { processURLs } from "./processURL.ts";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -27,7 +28,9 @@ switch (commandOrFile) {
   default:
     logger.info("Processing URL file");
     // TODO: Run URL processing
-    console.log("Command not implemented for: ", commandOrFile);
+    await processURLs(commandOrFile);
+    // console.log("results are: ", results);
+    console.log("Command TBD");
 }
 
 // if repos dir exists, remove it
