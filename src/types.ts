@@ -38,6 +38,17 @@ export type Fork = {
   };
 };
 
+export type LicenseReponse = {
+  repository: {
+    licenseInfo: {
+      key: string;
+      name: string;
+      spdxId: string;
+      url: string;
+    };
+  };
+};
+
 export type RampUpResponse = {
   repository: {
     forks: {
