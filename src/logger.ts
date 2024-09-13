@@ -44,7 +44,7 @@ const initializeLogger = () => {
     level: logLevel,
     format: fileLogFormat,
     transports: [new winston.transports.File({ filename: logDir })],
-    silent: logLevel === "silent",
+    silent: logLevel === "silent"
   }) as unknown as CustomLogger;
 
   // Directly add the custom console method to bareLogger
