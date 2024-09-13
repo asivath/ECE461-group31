@@ -1,4 +1,4 @@
-import { graphqlClient, GET_VALUES_FOR_RAMPUP } from "../graphqlClient.ts";
+import { graphqlClient, GET_VALUES_FOR_RAMP_UP } from "../graphqlClient.ts";
 import { RampUpResponse } from "../types.ts";
 import { differenceInDays } from "date-fns";
 import { getLogger } from "../logger.ts";
@@ -17,7 +17,7 @@ const logger = getLogger();
  */
 export async function calculateRampUpScore(repoOwner: string, repoName: string, firstForks = 50): Promise<number> {
   try {
-    const data: RampUpResponse = await graphqlClient.request(GET_VALUES_FOR_RAMPUP, {
+    const data: RampUpResponse = await graphqlClient.request(GET_VALUES_FOR_RAMP_UP, {
       repoOwner,
       repoName,
       firstForks

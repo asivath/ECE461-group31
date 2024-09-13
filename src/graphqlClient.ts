@@ -10,7 +10,7 @@ export const graphqlClient = new GraphQLClient(endpoint, {
   }
 });
 
-export const GET_VALUES_FOR_RAMPUP = gql`
+export const GET_VALUES_FOR_RAMP_UP = gql`
   query getForksAndPRs($repoOwner: String!, $repoName: String!, $firstForks: Int!) {
     repository(owner: $repoOwner, name: $repoName) {
       forks(first: $firstForks) {
@@ -68,32 +68,22 @@ export const GET_VALUES_FOR_RAMPUP = gql`
   }
 `;
 
-export const GET_VALUES_FOR_CORRECTNESS = gql`
-  query getPRsAndCommits($repoOwner: String!, $repoName: String!, $firstPRs: Int!, $firstCommits: Int!) {
+export const GET_VALUES_FOR_RESPONSIVE_MAINTAINER = gql`
+  query getRepoData($repoOwner: String!, $repoName: String!, $firstIssues: Int!) {
     repository(owner: $repoOwner, name: $repoName) {
-      pullRequests(first: $firstPRs, states: MERGED, orderBy: {field: CREATED_AT, direction: DESC}) {
+      issues(first: $firstIssues, states: CLOSED) {
         edges {
           node {
             createdAt
-            mergedAt
+            closedAt
           }
         }
       }
-      refs(refPrefix: "refs/heads/", first: $firstCommits) {
-        nodes {
-          target {
-            ... on Commit {
-              committedDate
-              history(first: 1) {
-                edges {
-                  node {
-                    committedDate
-                  }
-                }
-              }
-            }
-          }
-        }
+      allIssues: issues {
+        totalCount
+      }
+      totalClosedIssues: issues(states: CLOSED) {
+        totalCount
       }
     }
   }
