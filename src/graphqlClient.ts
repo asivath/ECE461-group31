@@ -10,7 +10,7 @@ export const graphqlClient = new GraphQLClient(endpoint, {
   }
 });
 
-export const GET_VALUES_FOR_RAMPUP = gql`
+export const GET_VALUES_FOR_RAMP_UP = gql`
   query getForksAndPRs($repoOwner: String!, $repoName: String!, $firstForks: Int!) {
     repository(owner: $repoOwner, name: $repoName) {
       forks(first: $firstForks) {
@@ -63,6 +63,27 @@ export const GET_VALUES_FOR_RAMPUP = gql`
         ... on Blob {
           id
         }
+      }
+    }
+  }
+`;
+
+export const GET_VALUES_FOR_RESPONSIVE_MAINTAINER = gql`
+  query getRepoData($repoOwner: String!, $repoName: String!, $firstIssues: Int!) {
+    repository(owner: $repoOwner, name: $repoName) {
+      issues(first: $firstIssues, states: CLOSED) {
+        edges {
+          node {
+            createdAt
+            closedAt
+          }
+        }
+      }
+      allIssues: issues {
+        totalCount
+      }
+      totalClosedIssues: issues(states: CLOSED) {
+        totalCount
       }
     }
   }
