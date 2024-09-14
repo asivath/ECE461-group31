@@ -97,9 +97,9 @@ describe("processURLs", () => {
 
   it("Should test file input and return an array of package repos with package name and owner", async () => {
     const expected = [
-      { packageName: "cloudinary_npm", owner: "cloudinary" },
-      { packageName: "nodist", owner: "nullivex" },
-      { packageName: "lodash", owner: "lodash" }
+      { packageName: "cloudinary_npm", owner: "cloudinary", url: "https://github.com/cloudinary/cloudinary_npm" },
+      { packageName: "nodist", owner: "nullivex", url: "https://github.com/nullivex/nodist" },
+      { packageName: "lodash", owner: "lodash", url: "https://github.com/lodash/lodash" }
     ];
 
     const filePath = path.join(testDir, "sampleURL.txt");

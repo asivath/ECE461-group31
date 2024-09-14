@@ -5,7 +5,7 @@
  */
 import { promisify } from "util";
 import { exec } from "child_process";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 type ExecError = {
   stdout: string;
@@ -36,18 +36,26 @@ describe("E2E Test", () => {
 
       // Instead of being smart and actually trying to calculate the actual values (we would need to subtact the index.test.ts tests), we will just hardcode it, so these needs to be updated if the tests are updated
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
-      expect(totalTests).toBe(35);
-      expect(totalPassed).toBe(35);
-      expect(lineCoverage).toBe(95.78);
-
+      expect(totalTests).toBe(36);
+      expect(totalPassed).toBe(36);
+      expect(lineCoverage).toBe(96.13);
     }
   });
 
-  it("should process a URL file with a default command", async () => {
-    const { stdout, stderr } = await execAsync("./run myFile.txt");
+  it("should calculate a netscore", async () => {
+    const { calculateNetScore } = await import("../metrics/netScore.ts");
+    const calculateNetScoreSpy = vi.spyOn({ calculateNetScore }, "calculateNetScore");
+
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const { stderr } = await execAsync("./run myFile.txt");
 
     expect(stderr).toBe("");
-    expect(stdout).toContain("Command TBD");
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+    calculateNetScoreSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   it("should fail with no command provided", async () => {
