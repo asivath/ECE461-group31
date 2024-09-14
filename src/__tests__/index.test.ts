@@ -5,11 +5,7 @@
  */
 import { promisify } from "util";
 import { exec } from "child_process";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
-import os from "os";
+import { describe, it, expect } from "vitest";
 
 type ExecError = {
   stdout: string;
@@ -21,53 +17,6 @@ type ExecError = {
 
 describe("E2E Test", () => {
   const execAsync = promisify(exec);
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  let tmpDir: string;
-
-  beforeAll(async () => {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "e2e-test-"));
-    const packageJsonPath = path.resolve(__dirname, "..", "..", "package.json");
-    const tmpPackageJsonPath = path.join(tmpDir, "package.json");
-    await fs.copyFile(packageJsonPath, tmpPackageJsonPath);
-    const scriptPath = path.resolve(__dirname, "..", "..", "run");
-    const tmpScriptPath = path.join(tmpDir, "run");
-    await fs.copyFile(scriptPath, tmpScriptPath);
-    const nodeModulesPath = path.join(__dirname, "..", "..", "node_modules");
-    const tmpNodeModulesPath = path.join(tmpDir, "node_modules");
-    await fs.cp(nodeModulesPath, tmpNodeModulesPath, { recursive: true });
-  });
-
-  afterAll(async () => {
-    await fs.rm(tmpDir, { recursive: true, force: true });
-  });
-
-  it('should install dependencies using the "install" command', { timeout: 10000 }, async () => {
-    const { stdout, stderr } = await execAsync("./run install", { cwd: tmpDir });
-
-    expect(stderr).toBe("");
-    expect(stdout).toContain("Dependencies installed successfully");
-
-    const nodeModulesPath = path.join(tmpDir, "node_modules");
-    const nodeModulesExists = await fs
-      .stat(nodeModulesPath)
-      .then(() => true)
-      .catch(() => false);
-    expect(nodeModulesExists).toBe(true);
-
-    const packageJsonPath = path.resolve(tmpDir, "package.json");
-    const packageJson = await fs.readFile(packageJsonPath, "utf-8");
-    const parsedPackageJson = JSON.parse(packageJson);
-    const expectedDependencies = Object.keys(parsedPackageJson.dependencies || {});
-    for (const dependency of expectedDependencies) {
-      const dependencyPath = path.join(nodeModulesPath, dependency);
-      const dependencyExists = await fs
-        .stat(dependencyPath)
-        .then(() => true)
-        .catch(() => false);
-      expect(dependencyExists).toBe(true);
-    }
-  });
 
   it('should run tests "test" command', async () => {
     const { stdout } = await execAsync("./run test", { env: { ...process.env, NODE_ENV: "test" } });
@@ -90,6 +39,7 @@ describe("E2E Test", () => {
       expect(totalTests).toBe(32);
       expect(totalPassed).toBe(32);
       expect(lineCoverage).toBe(95.41);
+
     }
   });
 

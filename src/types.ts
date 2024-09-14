@@ -2,41 +2,6 @@ export type returnRepo = {
   owner: string;
   packageName: string;
 } | null;
-export type Fork = {
-  owner: {
-    login: string;
-  };
-  createdAt: string;
-  pullRequests: {
-    nodes: Array<{
-      createdAt: string;
-      author: {
-        login: string;
-      };
-    }>;
-  };
-  issues: {
-    nodes: Array<{
-      createdAt: string;
-      author: {
-        login: string;
-      };
-    }>;
-  };
-  refs: {
-    nodes: Array<{
-      target: {
-        history: {
-          edges: Array<{
-            node: {
-              committedDate: string;
-            };
-          }>;
-        };
-      };
-    }>;
-  };
-};
 
 export type LicenseReponse = {
   repository: {
@@ -52,9 +17,43 @@ export type LicenseReponse = {
 export type RampUpResponse = {
   repository: {
     forks: {
-      edges: Array<{
-        node: Fork;
-      }>;
+      edges: {
+        node: {
+          owner: {
+            login: string;
+          };
+          createdAt: string;
+          pullRequests: {
+            nodes: {
+              createdAt: string;
+              author: {
+                login: string;
+              };
+            }[];
+          };
+          issues: {
+            nodes: {
+              createdAt: string;
+              author: {
+                login: string;
+              };
+            }[];
+          };
+          refs: {
+            nodes: {
+              target: {
+                history: {
+                  edges: {
+                    node: {
+                      committedDate: string;
+                    };
+                  }[];
+                };
+              };
+            }[];
+          };
+        };
+      }[];
     };
     object: {
       id?: string;
@@ -62,5 +61,24 @@ export type RampUpResponse = {
     contributing: {
       id?: string;
     } | null;
+  };
+};
+
+export type ResponsiveMaintainerResponse = {
+  repository: {
+    issues: {
+      edges: {
+        node: {
+          createdAt: string;
+          closedAt: string;
+        };
+      }[];
+    };
+    allIssues: {
+      totalCount: number;
+    };
+    totalClosedIssues: {
+      totalCount: number;
+    };
   };
 };
