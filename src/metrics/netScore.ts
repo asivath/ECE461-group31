@@ -5,7 +5,6 @@ import { processURLs } from "../processURL.ts";
 import { getLogger } from "../logger.ts";
 //IMPORT BUS FACTOR AND CORRECTNESS
 
-
 const logger = getLogger();
 
 /////DELETE WHEN BUS FACTOR AND CORRECTNESS ARE IMPLEMENTED
