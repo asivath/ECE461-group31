@@ -4,6 +4,7 @@ import { processURLs } from "./processURL.ts";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { calculateBusFactorScore } from "./metrics/busFactor.ts";
 
 const logger = getLogger();
 
@@ -25,6 +26,21 @@ switch (commandOrFile) {
       exit(1);
     });
     break;
+  case "bus":
+    const repos = await processURLs("./urls.txt");
+    // Calculate the bus factor score for each repository
+    for (const repo of repos) {
+      if (repo) {
+        const { owner, packageName } = repo;
+        console.log(owner, packageName);
+        const score = await calculateBusFactorScore(owner, packageName);
+        logger.info(`Bus Factor Score for ${owner}/${packageName}: ${score}`);
+        console.log(`Bus Factor Score for ${owner}/${packageName}: ${score}`);
+      }
+    }
+
+    break;
+
   default:
     logger.info("Processing URL file");
     // TODO: Run URL processing

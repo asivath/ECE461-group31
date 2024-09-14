@@ -89,7 +89,7 @@ export async function processURLs(filePath: string) {
   const results = [];
 
   for (const url of urls) {
-    logger.info("Working with URL:", url);
+    logger.info(`Working with URL: ${url}`);
     const repo = await getGithubRepo(url);
     if (!repo) {
       logger.info("Invalid URL");
