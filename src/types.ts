@@ -3,6 +3,17 @@ export type returnRepo = {
   packageName: string;
 } | null;
 
+export type LicenseReponse = {
+  repository: {
+    licenseInfo: {
+      key: string;
+      name: string;
+      spdxId: string;
+      url: string;
+    };
+  };
+};
+
 export type RampUpResponse = {
   repository: {
     forks: {

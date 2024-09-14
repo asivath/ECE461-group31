@@ -10,6 +10,19 @@ export const graphqlClient = new GraphQLClient(endpoint, {
   }
 });
 
+export const GET_VALUES_FOR_LICENSE = gql`
+  query getLicenseInfo($repoOwner: String!, $repoName: String!) {
+    repository(owner: $repoOwner, name: $repoName) {
+      licenseInfo {
+        key
+        name
+        spdxId
+        url
+      }
+    }
+  }
+`;
+
 export const GET_VALUES_FOR_RAMP_UP = gql`
   query getForksAndPRs($repoOwner: String!, $repoName: String!, $firstForks: Int!) {
     repository(owner: $repoOwner, name: $repoName) {

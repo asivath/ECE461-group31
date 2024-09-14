@@ -29,7 +29,6 @@ switch (commandOrFile) {
     logger.info("Processing URL file");
     // TODO: Run URL processing
     await processURLs(commandOrFile);
-    // console.log("results are: ", results);
     console.log("Command TBD");
 }
 
