@@ -9,6 +9,7 @@ import "dotenv/config";
 type CustomLogger = {
   info: winston.LeveledLogMethod;
   debug: winston.LeveledLogMethod;
+  console: (message: string) => void;
 };
 
 let bareLogger: CustomLogger | null = null;
@@ -38,12 +39,21 @@ const initializeLogger = () => {
 
   const logDir = process.env.LOG_FILE || "logs/default.log";
 
+  // Create the logger instance and directly assign it to bareLogger
   bareLogger = winston.createLogger({
     level: logLevel,
     format: fileLogFormat,
     transports: [new winston.transports.File({ filename: logDir })],
     silent: logLevel === "silent"
-  }) as CustomLogger;
+  }) as unknown as CustomLogger;
+
+  // Directly add the custom console method to bareLogger
+  bareLogger.console = (message: string) => {
+    console.log(message); // Always print to console
+    if (logLevel === "info" || logLevel === "debug") {
+      bareLogger!.info(message); // Log to file if verbosity is 1 or 2
+    }
+  };
 };
 
 /**
@@ -101,10 +111,10 @@ export const logTestResults = async () => {
     );
     const coverage = JSON.parse(coverageSummary);
     const lineCoverage = coverage.total.lines.pct;
-    console.log(`Total: ${totalTests}`);
-    console.log(`Passed: ${totalPassed}`);
-    console.log(`Coverage: ${lineCoverage}%`);
-    console.log(`${totalPassed}/${totalTests} test cases passed. ${lineCoverage}% line coverage achieved.`);
+    logger.console(`Total: ${totalTests}`);
+    logger.console(`Passed: ${totalPassed}`);
+    logger.console(`Coverage: ${lineCoverage}%`);
+    logger.console(`${totalPassed}/${totalTests} test cases passed. ${lineCoverage}% line coverage achieved.`);
   } catch (error) {
     logger.debug(error);
     throw error;

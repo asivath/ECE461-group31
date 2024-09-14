@@ -5,3 +5,4 @@ coverage
 .vsls.json
 logCoverage
 repos
+.vscode
