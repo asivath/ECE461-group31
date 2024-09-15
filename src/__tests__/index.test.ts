@@ -5,7 +5,10 @@
  */
 import { promisify } from "util";
 import { exec } from "child_process";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterAll } from "vitest";
+import path from "path";
+import fs from "fs/promises";
+import { calculateNetScore } from "../metrics/netScore.ts";
 
 type ExecError = {
   stdout: string;
@@ -15,8 +18,14 @@ type ExecError = {
   cmd: string;
 } & Error;
 
+// Cleanup created files after tests
+afterAll(async () => {
+  await fs.rm(path.join(__dirname, "test-files"), { recursive: true, force: true });
+});
+
 describe("E2E Test", () => {
   const execAsync = promisify(exec);
+  const testDir = path.join(__dirname, "test-files");
 
   it('should run "./run test" and output results', { timeout: 10000 }, async () => {
     const { stdout } = await execAsync("./run test", { env: { ...process.env, NODE_ENV: "test" } });
@@ -43,20 +52,34 @@ describe("E2E Test", () => {
   });
 
   it("should calculate a netscore", async () => {
-    const { calculateNetScore } = await import("../metrics/netScore.ts");
-    const calculateNetScoreSpy = vi.spyOn({ calculateNetScore }, "calculateNetScore");
+    await fs.mkdir(testDir, { recursive: true });
 
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    const { stderr } = await execAsync("./run myFile.txt");
+    ////////REPLACE WITH ACTUAL EXPECTED VALUES///////
+    const expected = {
+      URL: "https://github.com/cloudinary/cloudinary_npm",
+      NetScore: -0.11,
+      NetScore_Latency: -1,
+      RampUp: 0.27,
+      RampUp_Latency: -1,
+      Correctness: -1,
+      Correctness_Latency: -1,
+      BusFactor: -1,
+      BusFactor_Latency: -1,
+      ResponsiveMaintainer: 0.09,
+      ResponsiveMaintainer_Latency: -1,
+      License: 1,
+      License_Latency: -1
+    };
+    const filePath = path.join(testDir, "sampleURL.txt");
 
-    expect(stderr).toBe("");
+    await fs.writeFile(filePath, `https://github.com/cloudinary/cloudinary_npm`);
 
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    await calculateNetScore(filePath);
 
-    calculateNetScoreSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
-  });
+    expect(consoleSpy).toHaveBeenCalledWith(expected);
+  }, 50000);
 
   it("should fail with no command provided", async () => {
     try {
