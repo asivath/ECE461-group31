@@ -89,9 +89,9 @@ async function calculateDocumentationWeight(
 async function calculateTargetTime(repoDir: string): Promise<number> {
   const execPromise = promisify(exec);
   try {
-    const { stdout } = await execPromise(`npx cloc ${repoDir}`);
-    const linesOfCode = stdout.split("\n").find((line) => line.startsWith("SUM"));
-    const loc = linesOfCode?.split(/\s+/)[4];
+    const { stdout } = await execPromise(`npx cloc --json ${repoDir}`);
+    const clocData = JSON.parse(stdout);
+    const loc = clocData.SUM?.code;
     logger.debug(`Lines of code: ${loc}`);
     if (loc) {
       const locNumber = parseInt(loc);

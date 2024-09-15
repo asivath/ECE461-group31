@@ -5,7 +5,4 @@ coverage
 .vsls.json
 logCoverage
 repos
-# stryker temp files
-.stryker-tmp
-
 .vscode

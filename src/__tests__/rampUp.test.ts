@@ -1,4 +1,4 @@
-import { describe, test, vi, expect, beforeEach } from "vitest";
+import { describe, vi, expect, beforeEach, it } from "vitest";
 import { calculateRampUpScore } from "../metrics/rampUp.ts";
 import { getLogger } from "../logger.ts";
 import * as graphqlClientModule from "../graphqlClient.ts";
@@ -27,24 +27,16 @@ vi.mock("../util.ts", () => {
   };
 });
 vi.mock("util", () => ({
-  promisify: vi.fn().mockReturnValue(() => {
+  promisify: vi.fn().mockReturnValue(async () => {
     return Promise.resolve({
-      stdout: `
-        github.com/AlDanial/cloc v 2.02  T=0.11 s (789.9 files/s, 145526.9 lines/s)
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-TypeScript                      59           1082           1657          10355
-Markdown                        10            795              0           2025
-JSON                             8              0              0            127
-YAML                             5             16              8             90
-HTML                             4              3              0             36
-Dockerfile                       1              3              3              7
-Text                             1              0              0              6
--------------------------------------------------------------------------------
-SUM:                            88           1899           1668          12646
--------------------------------------------------------------------------------
-      `
+      stdout: JSON.stringify({
+        SUM: {
+          nFiles: 88,
+          blank: 1899,
+          comment: 1668,
+          code: 12646
+        }
+      })
     });
   })
 }));
@@ -61,7 +53,7 @@ describe("calculateRampUpScore", () => {
     vi.clearAllMocks();
   });
 
-  test("should calculate ramp-up score correctly and log internal values", async () => {
+  it("should calculate ramp-up score correctly and log internal values", async () => {
     const mockGraphQLResponse = {
       repository: {
         forks: {
@@ -80,7 +72,7 @@ describe("calculateRampUpScore", () => {
         contributing: { id: "CONTRIBUTING" }
       }
     };
-    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockGraphQLResponse);
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValueOnce(mockGraphQLResponse);
 
     const score = await calculateRampUpScore("owner", "repo", 50);
 
@@ -95,14 +87,14 @@ describe("calculateRampUpScore", () => {
     expect(score).toBe(expectedScore);
   });
 
-  test("should log an error and return 0 if GraphQL request fails", async () => {
-    vi.mocked(graphqlClientModule.graphqlClient.request).mockRejectedValue(new Error("GraphQL request failure"));
+  it("should log an error and return 0 if GraphQL request fails", async () => {
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockRejectedValueOnce(new Error("GraphQL request failure"));
     const score = await calculateRampUpScore("owner", "repo", 50);
     expect(score).toBe(0);
     expect(loggerSpy.info).toHaveBeenCalledWith("Error fetching forks and PRs:", new Error("GraphQL request failure"));
   });
 
-  test("should calculate lower score values for scenarios with high average days and no documentation", async () => {
+  it("should calculate lower score values for scenarios with high average days and no documentation", async () => {
     const mockGraphQLResponse = {
       repository: {
         forks: {
@@ -121,7 +113,7 @@ describe("calculateRampUpScore", () => {
         contributing: null
       }
     };
-    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockGraphQLResponse);
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValueOnce(mockGraphQLResponse);
 
     const score = await calculateRampUpScore("owner", "repo", 50);
 
@@ -147,7 +139,7 @@ describe("calculateRampUpScore", () => {
   ];
 
   locTestCases.forEach(({ loc, expectedTargetTime }) => {
-    test(`should calculate target time for ${loc} LOC and log internal values`, async () => {
+    it(`should calculate target time for ${loc} LOC and log internal values`, async () => {
       const mockGraphQLResponse = {
         repository: {
           forks: {
@@ -166,20 +158,17 @@ describe("calculateRampUpScore", () => {
           contributing: { id: "CONTRIBUTING" }
         }
       };
-      vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockGraphQLResponse);
-      vi.mocked(utilModule.promisify).mockReturnValue(() => {
+      vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValueOnce(mockGraphQLResponse);
+      vi.mocked(utilModule.promisify).mockReturnValueOnce(async () => {
         return Promise.resolve({
-          stdout: `
-            github.com/AlDanial/cloc v 2.02  T=0.11 s (789.9 files/s, 145526.9 lines/s)
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-TypeScript                      59           1082           1657          ${loc}
-Markdown                        10            795              0           2025
--------------------------------------------------------------------------------
-SUM:                            88           1899           1668          ${loc}
--------------------------------------------------------------------------------
-          `
+          stdout: JSON.stringify({
+            SUM: {
+              nFiles: 88,
+              blank: 1899,
+              comment: 1668,
+              code: loc
+            }
+          })
         });
       });
 

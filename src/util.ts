@@ -13,14 +13,14 @@ const logger = getLogger();
  * @returns The path to the cloned repository or null if an error occurred
  */
 export async function cloneRepo(repoUrl: string, repoName: string): Promise<string | null> {
+  if (!isValidFilePath(repoName)) {
+    logger.info("Invalid file path");
+    return null;
+  }
   const git: SimpleGit = simpleGit();
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const repoDir = path.resolve(__dirname, "..", "repos", repoName);
-  if (!isValidFilePath(repoDir)) {
-    logger.info("Invalid file path");
-    return null;
-  }
   try {
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is validated
     await fs.mkdir(repoDir, { recursive: true });
