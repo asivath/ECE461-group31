@@ -111,6 +111,7 @@ https://github.com/lodash/lodash`
     );
 
     const result = await processURLs(filePath);
+    console.log(result);
 
     expect(result).toEqual(expected);
   });

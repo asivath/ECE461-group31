@@ -5,6 +5,7 @@ import fs from "fs/promises";
 import { getLogger } from "./logger.js";
 
 const logger = getLogger();
+
 /**
  * Clone a repository from a given URL
  * @param repoUrl The URL of the repository to clone
@@ -16,7 +17,12 @@ export async function cloneRepo(repoUrl: string, repoName: string): Promise<stri
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const repoDir = path.resolve(__dirname, "..", "repos", repoName);
+  if (!isValidFilePath(repoDir)) {
+    logger.info("Invalid file path");
+    return null;
+  }
   try {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is validated
     await fs.mkdir(repoDir, { recursive: true });
     await git.clone(repoUrl, repoDir);
     logger.info(`Repository cloned to ${repoDir}`);
@@ -29,4 +35,15 @@ export async function cloneRepo(repoUrl: string, repoName: string): Promise<stri
     logger.info("Error cloning repository:", error);
     return null;
   }
+}
+
+/**
+ * Read a file and process the URLs within it
+ * @param filePath The path to the file to read
+ * @returns Whether the path is valid
+ */
+export function isValidFilePath(filePath: string): boolean {
+  // Validate the file path (basic validation to avoid traversal attacks)
+  const resolvedPath = path.resolve(filePath);
+  return path.isAbsolute(resolvedPath) && !filePath.includes("..");
 }

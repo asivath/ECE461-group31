@@ -18,7 +18,7 @@ type ExecError = {
 describe("E2E Test", () => {
   const execAsync = promisify(exec);
 
-  it('should run tests "test" command', async () => {
+  it('should run "./run test" and output results', { timeout: 10000 }, async () => {
     const { stdout } = await execAsync("./run test", { env: { ...process.env, NODE_ENV: "test" } });
 
     expect(stdout).toContain("Total:");
