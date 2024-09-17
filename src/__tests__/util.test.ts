@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, Mock, beforeEach } from "vitest";
-import { cloneRepo } from "../util.ts";
+import { cloneRepo, isValidFilePath } from "../util.ts";
 import fs from "fs/promises";
 import { simpleGit } from "simple-git";
 import { getLogger } from "../logger.ts";
@@ -56,12 +56,33 @@ describe("cloneRepo", () => {
   });
 
   it("should return null if there is an error other than 'already exists'", async () => {
-    const gitClone = vi.fn().mockRejectedValue(new Error("some other error"));
-    (simpleGit as Mock).mockReturnValue({ clone: gitClone });
+    const gitClone = vi.fn().mockRejectedValueOnce(new Error("some other error"));
+    (simpleGit as Mock).mockReturnValueOnce({ clone: gitClone });
 
     const repoDir = await cloneRepo(repoUrl, repoName);
 
     expect(repoDir).toBeNull();
     expect(logger.info).toHaveBeenCalledWith("Error cloning repository:", expect.any(Error));
+  });
+
+  it("should return null if the file path is invalid", async () => {
+    const invalidRepoName = "..";
+    const repoDir = await cloneRepo(repoUrl, invalidRepoName);
+
+    expect(repoDir).toBeNull();
+    expect(logger.info).toHaveBeenCalledWith("Invalid file path");
+    expect(mkdirSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("isValidFilePath", async () => {
+  it("should return true for valid file paths", () => {
+    expect(isValidFilePath("/path/to/file")).toBe(true);
+    expect(isValidFilePath("C:\\path\\to\\file")).toBe(true);
+  });
+
+  it("should return false for invalid file paths", () => {
+    expect(isValidFilePath("../path/to/file")).toBe(false);
+    expect(isValidFilePath("../../cwd/password")).toBe(false);
   });
 });

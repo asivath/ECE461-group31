@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, Mock, beforeAll, afterAll } from "vitest";
 import fs from "fs/promises";
 import path from "path";
+import { getGithubRepo, processURLs } from "../processURL.ts";
+import { getLogger } from "../logger.ts";
 
-// Mock the logger
 vi.mock("../logger.ts", () => {
   return {
     getLogger: vi.fn().mockReturnValue({
@@ -11,18 +12,12 @@ vi.mock("../logger.ts", () => {
     })
   };
 });
-
-// Import the functions after the mocks have been defined
-import { getGithubRepo, processURLs } from "../processURL.ts";
-import { getLogger } from "../logger.ts";
-
 type MockedResponse = {
   json: () => Promise<{ repository: { url: string } }>;
 } & Response;
 
 const logger = getLogger();
 
-// Mock fetch
 global.fetch = vi.fn();
 
 beforeAll(() => {
@@ -30,7 +25,6 @@ beforeAll(() => {
   vi.spyOn(console, "log").mockImplementation(() => {});
 });
 
-// Cleanup created files after tests
 afterAll(async () => {
   await fs.rm(path.join(__dirname, "test-files"), { recursive: true, force: true });
 });
@@ -74,7 +68,6 @@ describe("processURLs", () => {
   const testDir = path.join(__dirname, "test-files");
 
   beforeAll(async () => {
-    // Ensure the test directory exists
     await fs.mkdir(testDir, { recursive: true });
   });
 
@@ -111,6 +104,7 @@ https://github.com/lodash/lodash`
     );
 
     const result = await processURLs(filePath);
+    console.log(result);
 
     expect(result).toEqual(expected);
   });

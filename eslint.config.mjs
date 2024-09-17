@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
+import security from "eslint-plugin-security";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +15,7 @@ const compat = new FlatCompat({
 });
 
 export default [
+  security.configs.recommended,
   ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"),
   {
     plugins: {
@@ -35,5 +37,11 @@ export default [
   },
   {
     ignores: ["repos"]
+  },
+  {
+    files: ["src/__tests__/**/*"],
+    rules: {
+      "security/detect-non-literal-fs-filename": "off"
+    }
   }
 ];

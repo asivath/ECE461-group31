@@ -48,5 +48,7 @@ function calculateMedianResponseTime(issues: { node: { createdAt: string; closed
   responseTimes.sort((a, b) => a - b);
   const mid = Math.floor(responseTimes.length / 2);
 
-  return responseTimes.length % 2 !== 0 ? responseTimes[mid] : (responseTimes[mid - 1] + responseTimes[mid]) / 2;
+  return responseTimes.length % 2 !== 0
+    ? responseTimes[Number(mid)]
+    : (responseTimes[mid - 1] + responseTimes[Number(mid)]) / 2;
 }

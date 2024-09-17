@@ -97,9 +97,11 @@ async function fetchLicenseFromReadme(repoOwner: string, repoName: string): Prom
     }
 
     const readmePath = path.join(repoDir, "README.md");
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is controlled by the script
     const readmeContent = await fs.readFile(readmePath, "utf8");
 
     for (const licenseName of Licenses) {
+      // eslint-disable-next-line security/detect-non-literal-regexp -- licenseName comes from trusted source
       if (new RegExp(licenseName, "gi").test(readmeContent)) {
         return licenseName;
       }
