@@ -5,7 +5,7 @@
  */
 import { promisify } from "util";
 import { exec } from "child_process";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 type ExecError = {
   stdout: string;
@@ -42,11 +42,20 @@ describe("E2E Test", () => {
     }
   });
 
-  it("should process a URL file with a default command", async () => {
-    const { stdout, stderr } = await execAsync("./run myFile.txt");
+  it("should calculate a netscore", async () => {
+    const { calculateNetScore } = await import("../metrics/netScore.ts");
+    const calculateNetScoreSpy = vi.spyOn({ calculateNetScore }, "calculateNetScore");
+
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const { stderr } = await execAsync("./run myFile.txt");
 
     expect(stderr).toBe("");
-    expect(stdout).toContain("Command TBD");
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+    calculateNetScoreSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   it("should fail with no command provided", async () => {

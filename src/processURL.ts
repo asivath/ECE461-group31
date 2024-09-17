@@ -95,8 +95,7 @@ export async function processURLs(filePath: string) {
       logger.info("Invalid URL");
       continue;
     }
-    results.push(repo);
-    //Get repo netscore stuff
+    results.push({ ...repo, url: url });
   }
   logger.info("results are: ", results);
   return results;
