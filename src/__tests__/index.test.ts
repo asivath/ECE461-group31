@@ -45,9 +45,9 @@ describe("E2E Test", () => {
 
       // Instead of being smart and actually trying to calculate the actual values (we would need to subtact the index.test.ts tests), we will just hardcode it, so these needs to be updated if the tests are updated
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
-      expect(totalTests).toBe(48);
-      expect(totalPassed).toBe(48);
-      expect(lineCoverage).toBe(94.99);
+      expect(totalTests).toBe(49);
+      expect(totalPassed).toBe(49);
+      expect(lineCoverage).toBe(95.33);
     }
   });
 
@@ -56,14 +56,14 @@ describe("E2E Test", () => {
 
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    ////////REPLACE WITH ACTUAL EXPECTED VALUES///////
+    ////////REPLACE WITH ACTUAL EXPECTED VALUES////////
     const expected = {
       URL: "https://github.com/cloudinary/cloudinary_npm",
-      NetScore: -0.11,
+      NetScore: 0.19,
       NetScore_Latency: -1,
       RampUp: 0.27,
       RampUp_Latency: -1,
-      Correctness: -1,
+      Correctness: 0,
       Correctness_Latency: -1,
       BusFactor: -1,
       BusFactor_Latency: -1,

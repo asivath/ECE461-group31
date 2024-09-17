@@ -3,6 +3,7 @@ import { calculateNetScore } from "../metrics/netScore.ts"; // adjust this based
 import { calculateLicenseScore } from "../metrics/license.ts";
 import { calculateRampUpScore } from "../metrics/rampUp.ts";
 import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";
+import { calculateCorrectness } from "../metrics/correctness.ts";
 import { processURLs } from "../processURL.ts";
 
 // Mock the logger
@@ -57,11 +58,11 @@ describe("calculateNetScore", () => {
     expect(calculateResponsiveMaintainerScore).toHaveBeenCalledWith("test-owner", "test-package");
     expect(consoleSpy).toHaveBeenCalledWith({
       URL: "https://github.com/test/test-package",
-      NetScore: 0.1, // Calculated net score from the mocked data
+      NetScore: 0.4, // Calculated net score from the mocked data
       NetScore_Latency: -1,
       RampUp: 1,
       RampUp_Latency: -1,
-      Correctness: -1,
+      Correctness: 0,
       Correctness_Latency: -1,
       BusFactor: -1,
       BusFactor_Latency: -1,

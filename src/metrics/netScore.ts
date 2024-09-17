@@ -1,19 +1,16 @@
 import { calculateLicenseScore } from "./license.ts";
 import { calculateRampUpScore } from "./rampUp.ts";
 import { calculateResponsiveMaintainerScore } from "./responsiveMaintainer.ts";
+import { calculateCorrectness } from "./correctness.ts";
 import { processURLs } from "../processURL.ts";
 import { getLogger } from "../logger.ts";
-//IMPORT BUS FACTOR AND CORRECTNESS
+//IMPORT BUS FACTOR
 
 const logger = getLogger();
 
 /////DELETE WHEN BUS FACTOR AND CORRECTNESS ARE IMPLEMENTED
 async function calculateBusFactor(repoOwner: string, repoName: string): Promise<number> {
   logger.info(`Calculating Bus Factor for ${repoOwner}/${repoName}`);
-  return -1;
-}
-async function calculateCorrectness(repoOwner: string, repoName: string): Promise<number> {
-  logger.info(`Calculating Correctness for ${repoOwner}/${repoName}`);
   return -1;
 }
 /////DELETE WHEN BUS FACTOR AND CORRECTNESS ARE IMPLEMENTED
