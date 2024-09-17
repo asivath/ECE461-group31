@@ -27,6 +27,10 @@ vi.mock("../metrics/responsiveMaintainer.ts", () => ({
   calculateResponsiveMaintainerScore: vi.fn().mockResolvedValue(1)
 }));
 
+vi.mock("../metrics/correctness.ts", () => ({
+  calculateCorrectness: vi.fn().mockResolvedValue(1)
+}));
+
 vi.mock("../processURL.ts", () => ({
   processURLs: vi
     .fn()
@@ -40,8 +44,7 @@ vi.mock("../metrics/netScore.ts", async () => {
   const actual = await vi.importActual("../metrics/netScore.ts");
   return {
     ...actual,
-    calculateBusFactor: vi.fn().mockResolvedValue(-1),
-    calculateCorrectness: vi.fn().mockResolvedValue(-1)
+    calculateBusFactor: vi.fn().mockResolvedValue(-1)
   };
 });
 
@@ -56,13 +59,14 @@ describe("calculateNetScore", () => {
     expect(calculateLicenseScore).toHaveBeenCalledWith("test-owner", "test-package");
     expect(calculateRampUpScore).toHaveBeenCalledWith("test-owner", "test-package");
     expect(calculateResponsiveMaintainerScore).toHaveBeenCalledWith("test-owner", "test-package");
+    expect(calculateCorrectness).toHaveBeenCalledWith("test-owner", "test-package");
     expect(consoleSpy).toHaveBeenCalledWith({
       URL: "https://github.com/test/test-package",
-      NetScore: 0.4, // Calculated net score from the mocked data
+      NetScore: 0.7, // Calculated net score from the mocked data
       NetScore_Latency: -1,
       RampUp: 1,
       RampUp_Latency: -1,
-      Correctness: 0,
+      Correctness: 1,
       Correctness_Latency: -1,
       BusFactor: -1,
       BusFactor_Latency: -1,
