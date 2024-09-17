@@ -9,6 +9,10 @@ import { describe, it, expect, vi, afterAll } from "vitest";
 import path from "path";
 import fs from "fs/promises";
 import { calculateNetScore } from "../metrics/netScore.ts";
+import { calculateRampUpScore } from "../metrics/rampUp.ts";
+import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";
+import { calculateCorrectness } from "../metrics/correctness.ts";
+import { calculateLicenseScore } from "../metrics/license.ts";
 
 type ExecError = {
   stdout: string;
@@ -17,6 +21,23 @@ type ExecError = {
   signal: string | null;
   cmd: string;
 } & Error;
+
+// Mock external functions
+vi.mock("../metrics/license.ts", () => ({
+  calculateLicenseScore: vi.fn().mockResolvedValue(1)
+}));
+
+vi.mock("../metrics/rampUp.ts", () => ({
+  calculateRampUpScore: vi.fn().mockResolvedValue(0.27)
+}));
+
+vi.mock("../metrics/responsiveMaintainer.ts", () => ({
+  calculateResponsiveMaintainerScore: vi.fn().mockResolvedValue(0.09)
+}));
+
+vi.mock("../metrics/correctness.ts", () => ({
+  calculateCorrectness: vi.fn().mockResolvedValue(0)
+}));
 
 // Cleanup created files after tests
 afterAll(async () => {
@@ -56,7 +77,7 @@ describe("E2E Test", () => {
 
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    ////////REPLACE WITH ACTUAL EXPECTED VALUES////////
+    //////REPLACE WITH ACTUAL EXPECTED VALUES////////
     const expected = {
       URL: "https://github.com/cloudinary/cloudinary_npm",
       NetScore: 0.19,
@@ -72,11 +93,17 @@ describe("E2E Test", () => {
       License: 1,
       License_Latency: -1
     };
+
     const filePath = path.join(testDir, "sampleURL.txt");
 
     await fs.writeFile(filePath, `https://github.com/cloudinary/cloudinary_npm`);
 
     await calculateNetScore(filePath);
+
+    expect(calculateCorrectness).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
+    expect(calculateRampUpScore).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
+    expect(calculateResponsiveMaintainerScore).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
+    expect(calculateCorrectness).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
 
     expect(consoleSpy).toHaveBeenCalledWith(expected);
   }, 50000);
