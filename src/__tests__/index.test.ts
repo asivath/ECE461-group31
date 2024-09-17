@@ -103,7 +103,7 @@ describe("E2E Test", () => {
     expect(calculateCorrectness).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
     expect(calculateRampUpScore).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
     expect(calculateResponsiveMaintainerScore).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
-    expect(calculateCorrectness).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
+    expect(calculateLicenseScore).toHaveBeenCalledWith("cloudinary", "cloudinary_npm");
 
     expect(consoleSpy).toHaveBeenCalledWith(expected);
   }, 50000);
