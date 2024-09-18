@@ -41,9 +41,11 @@ vi.mock("../metrics/busFactor.ts", () => ({
 }));
 
 vi.mock("../processURL.ts", () => ({
-  processURLs: vi.fn().mockResolvedValue([
-    { packageName: "test-package", owner: "test-owner", url: "https://github.com/test/test-package" }
-  ])
+  processURLs: vi
+    .fn()
+    .mockResolvedValue([
+      { packageName: "test-package", owner: "test-owner", url: "https://github.com/test/test-package" }
+    ])
 }));
 
 vi.mock("../util.ts", () => ({
@@ -52,11 +54,13 @@ vi.mock("../util.ts", () => ({
 
 vi.mock("util", () => ({
   promisify: vi.fn(() => {
-    return vi.fn().mockResolvedValue({ stdout: JSON.stringify({
-      JavaScript: { code: 1000 },
-      TypeScript: { code: 500 },
-      SUM: { code: 1500 }
-    }) });
+    return vi.fn().mockResolvedValue({
+      stdout: JSON.stringify({
+        JavaScript: { code: 1000 },
+        TypeScript: { code: 500 },
+        SUM: { code: 1500 }
+      })
+    });
   })
 }));
 

@@ -141,7 +141,9 @@ describe("calculateResponsiveMaintainerScore", () => {
     const score = await calculateResponsiveMaintainerScore("repoOwner", "repoName");
 
     expect(score).toBe(0.5);
-    expect(logger.debug).toHaveBeenCalledWith("For repository repoOwner/repoName, no issues found, assigning score 0.5");
+    expect(logger.debug).toHaveBeenCalledWith(
+      "For repository repoOwner/repoName, no issues found, assigning score 0.5"
+    );
   });
 
   it("should return a score of 0 if there is an error", async () => {

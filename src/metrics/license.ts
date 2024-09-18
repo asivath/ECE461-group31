@@ -127,11 +127,20 @@ async function fetchLicenseFromPackageJson(repoDir: string): Promise<string | nu
  * @param repoName The name of the repository
  * @returns The license score of the repository
  */
-export async function calculateLicenseScore(repoOwner: string, repoName: string, repoDir: string): Promise<number> {
+export async function calculateLicenseScore(
+  repoOwner: string,
+  repoName: string,
+  repoDir: string | null
+): Promise<number> {
   const restLicense = await fetchLicenseFromGraphQL(repoOwner, repoName);
   if (restLicense) {
     logger.info("License found in GraphQL");
     return 1;
+  }
+
+  if (!repoDir) {
+    logger.info("Could not calculate license score: No repository directory provided");
+    return 0;
   }
 
   const readmeLicense = await fetchLicenseFromReadme(repoDir);

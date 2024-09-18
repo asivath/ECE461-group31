@@ -2,8 +2,17 @@ import { ESLint } from "eslint";
 import { getLogger } from "../logger.ts";
 
 const logger = getLogger();
-
-export async function calculateCorrectness(repoDir: string, totalLines: number): Promise<number> {
+/**
+ * Calculate the correctness score of a repository
+ * @param repoDir The directory of the repository
+ * @param totalLines The total number of lines of code in the repository
+ * @returns The correctness score of the repository
+ **/
+export async function calculateCorrectness(repoDir: string | null, totalLines: number): Promise<number> {
+  if (!repoDir) {
+    logger.info("Could not calculate correctness score: No repository directory provided");
+    return 0;
+  }
   const eslintScore = await calculateESLintScore(repoDir, totalLines);
   return eslintScore;
 }

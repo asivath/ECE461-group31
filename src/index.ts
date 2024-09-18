@@ -5,6 +5,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { calculateNetScore } from "./metrics/netScore.ts";
 
+const startTime = Date.now();
+
 const logger = getLogger();
 
 const args = process.argv.slice(2);
@@ -47,3 +49,6 @@ try {
     logger.debug("Error removing repos directory", error);
   }
 }
+
+const endTime = Date.now();
+console.log(`Total time: ${(endTime - startTime) / 1000} seconds`);
