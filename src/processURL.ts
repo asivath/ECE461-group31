@@ -5,13 +5,15 @@ import { isValidFilePath } from "./util.ts";
 
 const logger = getLogger();
 
-//Get the GitHub repo from the URL
+// Get the GitHub repo from the URL
 export async function getGithubRepo(url: string): Promise<returnRepo> {
   const trimmedUrl = url.trim();
 
   const npmRegex = /^https:\/\/www\.npmjs\.com\/package\/(?<packageName>[a-zA-Z0-9\-_]+)$/;
+
+  // Updated regex to allow .js, .io, and other extensions in the repo name, and handle trailing slashes
   const githubRegex =
-    /^(ssh:\/\/git@|https:\/\/)?github\.com\/(?<owner>[a-zA-Z0-9\-_]+)\/(?<packageName>[a-zA-Z0-9\-_]+)(?:\.git)?$/;
+    /^(?:ssh:\/\/git@|https:\/\/)?github\.com\/(?<owner>[a-zA-Z0-9\-_]+)\/(?<packageName>[a-zA-Z0-9\-_.]+?)(?:\/)?(?:\.git)?$/;
 
   if (npmRegex.test(trimmedUrl)) {
     return handleNpmUrl(trimmedUrl, npmRegex, githubRegex);
@@ -76,7 +78,7 @@ export async function processURLs(filePath: string) {
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is validated
     fileContent = await fs.readFile(filePath, "utf-8");
   } catch (error) {
-    logger.info("Error reading file", error);
+    logger.info("Error reading file: ", error);
     return [];
   }
 
@@ -89,15 +91,15 @@ export async function processURLs(filePath: string) {
   const results = [];
 
   for (const url of urls) {
-    logger.info("Working with URL:", url);
+    logger.info(`Working with URL: ${url}`);
     const repo = await getGithubRepo(url);
     if (!repo) {
       logger.info("Invalid URL");
       continue;
     }
     results.push(repo);
-    //Get repo netscore stuff
+    // Get repo netscore stuff
   }
-  logger.info("results are: ", results);
+  logger.info("Results are: ", results);
   return results;
 }
