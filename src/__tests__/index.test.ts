@@ -8,11 +8,6 @@ import { exec } from "child_process";
 import { describe, it, expect, afterAll } from "vitest";
 import path from "path";
 import fs from "fs/promises";
-// import { calculateNetScore } from "../metrics/netScore.ts";
-// import { calculateRampUpScore } from "../metrics/rampUp.ts";
-// import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";
-// import { calculateCorrectness } from "../metrics/correctness.ts";
-// import { calculateLicenseScore } from "../metrics/license.ts";
 
 type ExecError = {
   stdout: string;
@@ -29,7 +24,7 @@ afterAll(async () => {
 
 describe("E2E Test", () => {
   const execAsync = promisify(exec);
-  // const testDir = path.resolve(__dirname, "..", "..", "test-files");
+  const testDir = path.resolve(__dirname, "..", "..", "test-files");
 
   it('should run "./run test" and output results', { timeout: 10000 }, async () => {
     const { stdout } = await execAsync("./run test", { env: { ...process.env, NODE_ENV: "test" } });
@@ -55,39 +50,35 @@ describe("E2E Test", () => {
     }
   });
 
-  // it("should calculate a netscore", async () => {
-  //   await fs.mkdir(testDir, { recursive: true });
+  it("should calculate a netscore", async () => {
+    await fs.mkdir(testDir, { recursive: true });
 
-  //   // const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const filePath = path.join(testDir, "sampleURL.txt");
+    await fs.writeFile(filePath, `https://github.com/cloudinary/cloudinary_npm`);
 
-  //   //////REPLACE WITH ACTUAL EXPECTED VALUES////////
-  //   const expected = JSON.stringify({
-  //     URL: "https://github.com/cloudinary/cloudinary_npm",
-  //     NetScore: 0.19,
-  //     NetScore_Latency: -1,
-  //     RampUp: 0.27,
-  //     RampUp_Latency: -1,
-  //     Correctness: 0,
-  //     Correctness_Latency: -1,
-  //     BusFactor: -1,
-  //     BusFactor_Latency: -1,
-  //     ResponsiveMaintainer: 0.09,
-  //     ResponsiveMaintainer_Latency: -1,
-  //     License: 1,
-  //     License_Latency: -1
-  //   });
+    const { stdout } = await execAsync(`./run ${filePath}`, {
+      env: { ...process.env, NODE_ENV: "test", LOG_LEVEL: "0" }
+    });
 
-  //   const filePath = path.join(testDir, "sampleURL.txt");
+    const actual = JSON.parse(stdout.trim());
 
-  //   await fs.writeFile(filePath, `https://github.com/cloudinary/cloudinary_npm`);
+    // Validate static values
+    expect(actual.URL).toBe("https://github.com/cloudinary/cloudinary_npm");
+    expect(actual.NetScore).toBe(0.36);
+    expect(actual.RampUp).toBe(0.27);
+    expect(actual.Correctness).toBe(0);
+    expect(actual.BusFactor).toBe(0.1);
+    expect(actual.ResponsiveMaintainer).toBe(0.09);
+    expect(actual.License).toBe(1);
 
-  //   // await calculateNetScore(filePath);
-
-  //   const { stdout } = await execAsync(`./run ${filePath}`, { env: { ...process.env, NODE_ENV: "test", LOG_LEVEL: "0" }});
-
-  //   expect(stdout).toBe(expected.trim());
-
-  // }, 50000);
+    // Validate latency ranges
+    expect(actual.NetScore_Latency).toBeGreaterThan(0);
+    expect(actual.RampUp_Latency).toBeGreaterThan(0);
+    expect(actual.Correctness_Latency).toBeGreaterThan(0);
+    expect(actual.BusFactor_Latency).toBeGreaterThan(0);
+    expect(actual.ResponsiveMaintainer_Latency).toBeGreaterThan(0);
+    expect(actual.License_Latency).toBeGreaterThan(0);
+  }, 50000);
 
   it("should fail with no command provided", async () => {
     try {
