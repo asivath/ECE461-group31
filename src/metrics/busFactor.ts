@@ -69,7 +69,7 @@ function calculateBusFactor90thPercentile(commitData: Map<string, number>): numb
 
   // Determine the 90th percentile index
   const percentileIndex = Math.floor(0.9 * totalContributors);
-  const threshold = commitCounts[percentileIndex];
+  const threshold = commitCounts[Number(percentileIndex)];
 
   // Count contributors above the 90th percentile threshold
   const aboveThresholdContributors = commitCounts.filter((count) => count >= threshold).length;
