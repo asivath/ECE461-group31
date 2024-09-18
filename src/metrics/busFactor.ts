@@ -12,12 +12,11 @@ const logger = getLogger();
  */
 export async function calculateBusFactorScore(repoOwner: string, repoName: string): Promise<number> {
   try {
-    // filter commits since last 18 months
-    const since = new Date(new Date().setMonth(new Date().getMonth() - 18)).toISOString();
+    // filter commits since last 30 months aka 2.5 years
+    const since = new Date(new Date().setMonth(new Date().getMonth() - 30)).toISOString();
     let hasNextPage = true;
     let cursor = null;
     const commitData = new Map<string, number>();
-
 
     // Fetch all commits
     while (hasNextPage) {
@@ -43,8 +42,8 @@ export async function calculateBusFactorScore(repoOwner: string, repoName: strin
       hasNextPage = history.pageInfo.hasNextPage;
     }
 
-    // Calculate the score using the 93rd percentile
-    const score = calculateBusFactor93rdPercentile(commitData);
+    // Calculate the score using the 90th percentile
+    const score = calculateBusFactor90thPercentile(commitData);
 
     logger.debug(`Bus factor score for ${repoOwner}/${repoName}: ${score}`);
     return score;
@@ -55,27 +54,25 @@ export async function calculateBusFactorScore(repoOwner: string, repoName: strin
 }
 
 /**
- * Calculate the bus factor score based on the 93rd percentile of commit data
- * For each additonal abovethreshold contributor, the score increases by 0.08
+ * Calculate the bus factor score based on the 90th percentile of commit data
+ * For each additonal abovethreshold contributor, the score increases by 0.05
  * Capped at 1, min 0
  * @param commitData A map of contributor logins to their commit counts
  * @returns The bus factor score
  */
-function calculateBusFactor93rdPercentile(commitData: Map<string, number>): number {
+function calculateBusFactor90thPercentile(commitData: Map<string, number>): number {
   const commitCounts = Array.from(commitData.values());
   commitCounts.sort((a, b) => a - b);
 
   const totalContributors = commitCounts.length;
   if (totalContributors === 0) return 0;
 
-  // Determine the 93rd percentile index
-  const percentileIndex = Math.floor(0.93 * totalContributors);
+  // Determine the 90th percentile index
+  const percentileIndex = Math.floor(0.9 * totalContributors);
   const threshold = commitCounts[percentileIndex];
 
-  // Count contributors above the 93rd percentile threshold
+  // Count contributors above the 90th percentile threshold
   const aboveThresholdContributors = commitCounts.filter((count) => count >= threshold).length;
-
-  const score = Math.min(1, Math.max(aboveThresholdContributors * 0.05, 0));
-
+  const score = Math.min(1, Math.max(Math.round(aboveThresholdContributors * 0.05 * 100) / 100, 0));
   return score;
 }

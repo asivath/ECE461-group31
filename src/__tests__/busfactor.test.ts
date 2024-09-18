@@ -1,42 +1,233 @@
-import { describe, test, vi, expect, beforeEach } from "vitest";
+import { describe, it, vi, expect, beforeEach } from "vitest";
 import { calculateBusFactorScore } from "../metrics/busFactor.ts";
-import { it } from "node:test";
-/* 
-the GTAs specified a few repo that should be low, med, or high, I will interpret:
-0.00 - 0.33 = low
-0.33 - 0.66 = med
-66.6 - 1.00 = high
-BTW I think one of the provided repo is low despite GTA saying high
-https://github.com/prathameshnetake/libvlc
-*/
+import * as graphqlClientModule from "../graphqlClient.ts";
 
-// hasansultan92 watch.js low
-// mrdoob three.js High
-// socketio socket.io Med
-// prathameshnetake libvlc Low
-// facebook react High
-// ryanve unlicensed low
-
-vi.mock("../logger.ts", () => ({
-    getLogger: () => ({
-      debug: vi.fn(),
-      info: vi.fn(),
-    }),
-  }));
-
-  vi.mock("../graphqlClient.ts", () => ({
+vi.mock("../graphqlClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof graphqlClientModule>();
+  return {
+    ...actual,
     graphqlClient: {
-      request: vi.fn(),
-    },
-  }));
+      request: vi.fn()
+    }
+  };
+});
+
+vi.mock("../logger.ts", () => {
+  return {
+    getLogger: vi.fn().mockReturnValue({
+      debug: vi.fn(),
+      info: vi.fn()
+    })
+  };
+});
 
 describe("calculateBusFactorScore", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-      });
-    it("should return a low bus factor score for cloudinary/cloudinary_npm", async () => {
-        const score = await calculateBusFactorScore("cloudinary", "cloudinary_npm");
-        expect(score).toBeLessThanOrEqual(0.33);
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
+  it("should return a low bus factor score when no authors", async () => {
+    const mockGraphQLResponse = {
+      repository: {
+        defaultBranchRef: {
+          target: {
+            history: {
+              edges: [],
+              pageInfo: { endCursor: null, hasNextPage: false }
+            }
+          }
+        }
+      }
+    };
+
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockGraphQLResponse);
+    const score = await calculateBusFactorScore("owner", "repo");
+    expect(score).toEqual(0);
+  });
+
+  it("should return a low bus factor score", async () => {
+    const mockGraphQLResponse = {
+      repository: {
+        defaultBranchRef: {
+          target: {
+            history: {
+              edges: [
+                {
+                  node: {
+                    author: { user: { login: "user1" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                }
+              ],
+              pageInfo: { endCursor: null, hasNextPage: false }
+            }
+          }
+        }
+      }
+    };
+
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockGraphQLResponse);
+    const score = await calculateBusFactorScore("owner", "repo");
+    expect(score).toEqual(0.05);
+  });
+
+  it("should return a medium bus factor score", async () => {
+    const mockGraphQLResponse = {
+      repository: {
+        defaultBranchRef: {
+          target: {
+            history: {
+              edges: [
+                {
+                  node: {
+                    author: { user: { login: "user1" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user2" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user3" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user4" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user5" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user6" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user7" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                }
+              ],
+              pageInfo: { endCursor: null, hasNextPage: false }
+            }
+          }
+        }
+      }
+    };
+
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockGraphQLResponse);
+    const score = await calculateBusFactorScore("owner", "repo");
+    expect(score).toEqual(0.35);
+  });
+
+  it("should return a high bus factor score", async () => {
+    const mockGraphQLResponse = {
+      repository: {
+        defaultBranchRef: {
+          target: {
+            history: {
+              edges: [
+                {
+                  node: {
+                    author: { user: { login: "user1" } },
+                    committedDate: "2023-01-01T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user2" } },
+                    committedDate: "2023-01-02T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user3" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user4" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user5" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user6" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user7" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user8" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user9" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user10" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user11" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user12" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                },
+                {
+                  node: {
+                    author: { user: { login: "user13" } },
+                    committedDate: "2023-01-03T00:00:00Z"
+                  }
+                }
+              ],
+              pageInfo: { endCursor: null, hasNextPage: false }
+            }
+          }
+        }
+      }
+    };
+
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValue(mockGraphQLResponse);
+    const score = await calculateBusFactorScore("facebook", "react");
+    expect(score).toEqual(0.65);
+  });
 });

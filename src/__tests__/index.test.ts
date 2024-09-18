@@ -36,9 +36,9 @@ describe("E2E Test", () => {
 
       // Instead of being smart and actually trying to calculate the actual values (we would need to subtact the index.test.ts tests), we will just hardcode it, so these needs to be updated if the tests are updated
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
-      expect(totalTests).toBe(48);
-      expect(totalPassed).toBe(48);
-      expect(lineCoverage).toBe(94.99);
+      expect(totalTests).toBe(34);
+      expect(totalPassed).toBe(34);
+      expect(lineCoverage).toBe(94.24);
     }
   });
 
