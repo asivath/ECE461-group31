@@ -25,14 +25,6 @@ switch (commandOrFile) {
       exit(1);
     });
     break;
-  case "testurl":
-    logger.info("Running tests for URL processing");
-    const repos = await processURLs("./urls.txt");
-    for (const repo of repos) {
-      const { owner, packageName } = repo;
-      logger.console(`Testing ${owner}/${packageName}`);
-    }
-    break;
   default:
     logger.info("Processing URL file");
     // TODO: Run URL processing
