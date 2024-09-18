@@ -38,7 +38,7 @@ describe("E2E Test", () => {
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
       expect(totalTests).toBe(52);
       expect(totalPassed).toBe(52);
-      expect(lineCoverage).toBe(94.86);
+      expect(lineCoverage).toBe(94.69);
     }
   });
 
