@@ -4,15 +4,21 @@ import { calculateLicenseScore } from "../metrics/license.ts";
 import { calculateRampUpScore } from "../metrics/rampUp.ts";
 import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";
 import { calculateCorrectness } from "../metrics/correctness.ts";
+import { calculateBusFactorScore } from "../metrics/busFactor.ts";
 import { processURLs } from "../processURL.ts";
+import { getLogger } from "../logger.ts";
+import { beforeEach } from "node:test";
 
 // Mock the logger
-vi.mock("../logger.ts", () => ({
-  getLogger: () => ({
-    info: vi.fn(),
-    error: vi.fn()
-  })
-}));
+vi.mock("../logger.ts", () => {
+  return {
+    getLogger: vi.fn().mockReturnValue({
+      debug: vi.fn(),
+      info: vi.fn(),
+      console: vi.fn()
+    })
+  };
+});
 
 // Mock external functions
 vi.mock("../metrics/license.ts", () => ({
@@ -29,6 +35,10 @@ vi.mock("../metrics/responsiveMaintainer.ts", () => ({
 
 vi.mock("../metrics/correctness.ts", () => ({
   calculateCorrectness: vi.fn().mockResolvedValue(1)
+}));
+
+vi.mock("../metrics/busFactor.ts", () => ({
+  calculateBusFactorScore: vi.fn().mockResolvedValue(1)
 }));
 
 vi.mock("../processURL.ts", () => ({
@@ -49,9 +59,13 @@ vi.mock("../metrics/netScore.ts", async () => {
 });
 
 describe("calculateNetScore", () => {
-  it("should calculate the correct net score for a given repository", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  const logger = getLogger();
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should calculate the correct net score for a given repository", async () => {
     await calculateNetScore("path/to/url_file.txt");
 
     // Ensure external functions are called correctly
@@ -60,23 +74,24 @@ describe("calculateNetScore", () => {
     expect(calculateRampUpScore).toHaveBeenCalledWith("test-owner", "test-package");
     expect(calculateResponsiveMaintainerScore).toHaveBeenCalledWith("test-owner", "test-package");
     expect(calculateCorrectness).toHaveBeenCalledWith("test-owner", "test-package");
-    expect(consoleSpy).toHaveBeenCalledWith({
-      URL: "https://github.com/test/test-package",
-      NetScore: 0.7, // Calculated net score from the mocked data
-      NetScore_Latency: -1,
-      RampUp: 1,
-      RampUp_Latency: -1,
-      Correctness: 1,
-      Correctness_Latency: -1,
-      BusFactor: -1,
-      BusFactor_Latency: -1,
-      ResponsiveMaintainer: 1,
-      ResponsiveMaintainer_Latency: -1,
-      License: 1,
-      License_Latency: -1
-    });
+    expect(calculateBusFactorScore).toHaveBeenCalledWith("test-owner", "test-package");
 
-    // Clean up mocks
-    consoleSpy.mockRestore();
+    expect(logger.console).toHaveBeenCalledWith(
+      JSON.stringify({
+        URL: "https://github.com/test/test-package",
+        NetScore: 1, // Calculated net score from the mocked data
+        NetScore_Latency: -1,
+        RampUp: 1,
+        RampUp_Latency: -1,
+        Correctness: 1,
+        Correctness_Latency: -1,
+        BusFactor: 1,
+        BusFactor_Latency: -1,
+        ResponsiveMaintainer: 1,
+        ResponsiveMaintainer_Latency: -1,
+        License: 1,
+        License_Latency: -1
+      })
+    );
   });
 });
