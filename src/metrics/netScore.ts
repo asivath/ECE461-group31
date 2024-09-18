@@ -19,7 +19,7 @@ export async function calculateNetScore(linkPath: string): Promise<void> {
   const results = await processURLs(linkPath);
 
   for (const { packageName, owner, url } of results) {
-    let netStart = Date.now();
+    const netStart = Date.now();
 
     let startTime = Date.now();
     const licenseScore = await calculateLicenseScore(owner, packageName);
@@ -49,7 +49,7 @@ export async function calculateNetScore(linkPath: string): Promise<void> {
     const netScore =
       0.3 * licenseScore + 0.1 * rampUpScore + 0.15 * responsiveMaintainerScore + 0.15 * busFactor + 0.3 * correctness;
 
-    let netEnd = Date.now();
+    const netEnd = Date.now();
     const netLatency = (netEnd - netStart) / 1000; // Convert to seconds
 
     logger.console(

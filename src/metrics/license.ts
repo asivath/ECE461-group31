@@ -121,7 +121,6 @@ async function fetchLicenseFromReadme(repoOwner: string, repoName: string): Prom
  * @returns The license score of the repository
  */
 export async function calculateLicenseScore(repoOwner: string, repoName: string): Promise<number> {
-
   const restLicense = await fetchLicenseFromGraphQL(repoOwner, repoName);
   if (restLicense) {
     logger.info("Returned with restLicense");

@@ -80,17 +80,17 @@ describe("calculateNetScore", () => {
       JSON.stringify({
         URL: "https://github.com/test/test-package",
         NetScore: 1, // Calculated net score from the mocked data
-        NetScore_Latency: -1,
+        NetScore_Latency: 0,
         RampUp: 1,
-        RampUp_Latency: -1,
+        RampUp_Latency: 0,
         Correctness: 1,
-        Correctness_Latency: -1,
+        Correctness_Latency: 0,
         BusFactor: 1,
-        BusFactor_Latency: -1,
+        BusFactor_Latency: 0,
         ResponsiveMaintainer: 1,
-        ResponsiveMaintainer_Latency: -1,
+        ResponsiveMaintainer_Latency: 0,
         License: 1,
-        License_Latency: -1
+        License_Latency: 0
       })
     );
   });
