@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { calculateNetScore } from "../metrics/netScore.ts"; // adjust this based on your file structure
+import { calculateNetScore } from "../metrics/netScore.ts";
 import { calculateLicenseScore } from "../metrics/license.ts";
 import { calculateRampUpScore } from "../metrics/rampUp.ts";
 import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";
@@ -9,7 +9,6 @@ import { processURLs } from "../processURL.ts";
 import { getLogger } from "../logger.ts";
 import { beforeEach } from "node:test";
 
-// Mock the logger
 vi.mock("../logger.ts", () => {
   return {
     getLogger: vi.fn().mockReturnValue({
@@ -20,7 +19,6 @@ vi.mock("../logger.ts", () => {
   };
 });
 
-// Mock external functions
 vi.mock("../metrics/license.ts", () => ({
   calculateLicenseScore: vi.fn().mockResolvedValue(1)
 }));
@@ -49,7 +47,6 @@ vi.mock("../processURL.ts", () => ({
     ])
 }));
 
-// Mock calculateBusFactor and calculateCorrectness (temporary stubs in your code)
 vi.mock("../metrics/netScore.ts", async () => {
   const actual = await vi.importActual("../metrics/netScore.ts");
   return {
@@ -68,7 +65,6 @@ describe("calculateNetScore", () => {
   it("should calculate the correct net score for a given repository", async () => {
     await calculateNetScore("path/to/url_file.txt");
 
-    // Ensure external functions are called correctly
     expect(processURLs).toHaveBeenCalledWith("path/to/url_file.txt");
     expect(calculateLicenseScore).toHaveBeenCalledWith("test-owner", "test-package");
     expect(calculateRampUpScore).toHaveBeenCalledWith("test-owner", "test-package");
@@ -79,7 +75,7 @@ describe("calculateNetScore", () => {
     expect(logger.console).toHaveBeenCalledWith(
       JSON.stringify({
         URL: "https://github.com/test/test-package",
-        NetScore: 1, // Calculated net score from the mocked data
+        NetScore: 1,
         NetScore_Latency: -1,
         RampUp: 1,
         RampUp_Latency: -1,
