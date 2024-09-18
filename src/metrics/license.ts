@@ -3,7 +3,7 @@ import { LicenseReponse } from "../types.ts";
 import { getLogger } from "../logger.ts";
 import { cloneRepo } from "../util.ts";
 import path from "path";
-import fs from "fs/promises";
+import { readFile } from "fs/promises";
 
 const logger = getLogger();
 
@@ -79,7 +79,7 @@ async function fetchLicenseFromGraphQL(repoOwner: string, repoName: string): Pro
     });
 
     const restLicense = data.repository.licenseInfo.spdxId;
-    logger.info("restLicense: ", restLicense);
+    logger.debug("restLicense: ", restLicense);
 
     return Licenses.has(restLicense) ? restLicense : null;
   } catch (error) {
@@ -92,13 +92,13 @@ async function fetchLicenseFromReadme(repoOwner: string, repoName: string): Prom
   try {
     const repoDir = await cloneRepo(`https://github.com/${repoOwner}/${repoName}.git`, repoName);
     if (!repoDir) {
-      console.error("Failed to clone repository");
+      logger.info("Failed to clone repository");
       return null;
     }
 
     const readmePath = path.join(repoDir, "README.md");
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is controlled by the script
-    const readmeContent = await fs.readFile(readmePath, "utf8");
+    const readmeContent = await readFile(readmePath, "utf8");
 
     for (const licenseName of Licenses) {
       // eslint-disable-next-line security/detect-non-literal-regexp -- licenseName comes from trusted source
@@ -114,6 +114,25 @@ async function fetchLicenseFromReadme(repoOwner: string, repoName: string): Prom
   }
 }
 
+async function fetchLicenseFromPackageJson(repoOwner: string, repoName: string): Promise<string | null> {
+  try {
+    const repoDir = await cloneRepo(`https://github.com/${repoOwner}/${repoName}.git`, repoName);
+    if (!repoDir) {
+      logger.info("Failed to clone repository");
+      return null;
+    }
+    const packageJsonPath = path.join(repoDir, "package.json");
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is controlled by the script
+    const packageJson = await readFile(packageJsonPath, "utf8");
+    const packageJsonObj = JSON.parse(packageJson);
+    const license = packageJsonObj.license;
+    return license;
+  } catch (readError) {
+    logger.info(`package.json not found or could not be read: ${readError}`);
+    return null;
+  }
+}
+
 /**
  * Calculate the license score of a repository
  * @param repoOwner The owner of the repository
@@ -123,15 +142,21 @@ async function fetchLicenseFromReadme(repoOwner: string, repoName: string): Prom
 export async function calculateLicenseScore(repoOwner: string, repoName: string): Promise<number> {
   const restLicense = await fetchLicenseFromGraphQL(repoOwner, repoName);
   if (restLicense) {
-    logger.info("Returned with restLicense");
+    logger.info("License found in GraphQL");
     return 1;
   }
 
   const readmeLicense = await fetchLicenseFromReadme(repoOwner, repoName);
   if (readmeLicense) {
-    logger.info("Returned with readmeLicense");
+    logger.info("License found in README.md");
     return 1;
   }
 
+  const packageJsonLicense = await fetchLicenseFromPackageJson(repoOwner, repoName);
+  if (packageJsonLicense) {
+    logger.info("License found in package.json");
+    return 1;
+  }
+  logger.info("No license found");
   return 0;
 }
