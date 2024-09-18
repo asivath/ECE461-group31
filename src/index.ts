@@ -1,9 +1,9 @@
 import { exit } from "process";
 import { getLogger, logTestResults } from "./logger.ts";
-import { processURLs } from "./processURL.ts";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { calculateNetScore } from "./metrics/netScore.ts";
 
 const logger = getLogger();
 
@@ -28,8 +28,12 @@ switch (commandOrFile) {
   default:
     logger.info("Processing URL file");
     // TODO: Run URL processing
-    await processURLs(commandOrFile);
-    console.log("Command TBD");
+    await calculateNetScore(commandOrFile).catch((e) => {
+      logger.debug(e);
+      console.error(e);
+      exit(1);
+    });
+    break;
 }
 
 // if repos dir exists, remove it

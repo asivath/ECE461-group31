@@ -5,7 +5,14 @@
  */
 import { promisify } from "util";
 import { exec } from "child_process";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterAll } from "vitest";
+import path from "path";
+import fs from "fs/promises";
+// import { calculateNetScore } from "../metrics/netScore.ts";
+// import { calculateRampUpScore } from "../metrics/rampUp.ts";
+// import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";
+// import { calculateCorrectness } from "../metrics/correctness.ts";
+// import { calculateLicenseScore } from "../metrics/license.ts";
 
 type ExecError = {
   stdout: string;
@@ -15,8 +22,14 @@ type ExecError = {
   cmd: string;
 } & Error;
 
+// Cleanup created files after tests
+afterAll(async () => {
+  await fs.rm(path.resolve(__dirname, "..", "..", "test-files"), { recursive: true, force: true });
+});
+
 describe("E2E Test", () => {
   const execAsync = promisify(exec);
+  // const testDir = path.resolve(__dirname, "..", "..", "test-files");
 
   it('should run "./run test" and output results', { timeout: 10000 }, async () => {
     const { stdout } = await execAsync("./run test", { env: { ...process.env, NODE_ENV: "test" } });
@@ -36,18 +49,45 @@ describe("E2E Test", () => {
 
       // Instead of being smart and actually trying to calculate the actual values (we would need to subtact the index.test.ts tests), we will just hardcode it, so these needs to be updated if the tests are updated
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
-      expect(totalTests).toBe(52);
-      expect(totalPassed).toBe(52);
-      expect(lineCoverage).toBe(94.69);
+      expect(totalTests).toBe(53);
+      expect(totalPassed).toBe(53);
+      expect(lineCoverage).toBe(95.18);
     }
   });
 
-  it("should process a URL file with a default command", async () => {
-    const { stdout, stderr } = await execAsync("./run myFile.txt");
+  // it("should calculate a netscore", async () => {
+  //   await fs.mkdir(testDir, { recursive: true });
 
-    expect(stderr).toBe("");
-    expect(stdout).toContain("Command TBD");
-  });
+  //   // const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+  //   //////REPLACE WITH ACTUAL EXPECTED VALUES////////
+  //   const expected = JSON.stringify({
+  //     URL: "https://github.com/cloudinary/cloudinary_npm",
+  //     NetScore: 0.19,
+  //     NetScore_Latency: -1,
+  //     RampUp: 0.27,
+  //     RampUp_Latency: -1,
+  //     Correctness: 0,
+  //     Correctness_Latency: -1,
+  //     BusFactor: -1,
+  //     BusFactor_Latency: -1,
+  //     ResponsiveMaintainer: 0.09,
+  //     ResponsiveMaintainer_Latency: -1,
+  //     License: 1,
+  //     License_Latency: -1
+  //   });
+
+  //   const filePath = path.join(testDir, "sampleURL.txt");
+
+  //   await fs.writeFile(filePath, `https://github.com/cloudinary/cloudinary_npm`);
+
+  //   // await calculateNetScore(filePath);
+
+  //   const { stdout } = await execAsync(`./run ${filePath}`, { env: { ...process.env, NODE_ENV: "test", LOG_LEVEL: "0" }});
+
+  //   expect(stdout).toBe(expected.trim());
+
+  // }, 50000);
 
   it("should fail with no command provided", async () => {
     try {
