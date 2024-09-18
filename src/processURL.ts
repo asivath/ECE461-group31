@@ -61,7 +61,7 @@ function handleGithubUrl(url: string, githubRegex: RegExp): returnRepo {
   if (match?.groups) {
     return { packageName: match.groups.packageName, owner: match.groups.owner };
   }
-  
+
   logger.info("Invalid GitHub URL");
   return null;
 }
