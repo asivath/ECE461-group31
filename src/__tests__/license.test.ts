@@ -55,6 +55,7 @@ describe("calculateLicenseScore", () => {
     });
 
     const result = await calculateLicenseScore("owner", "repo");
+    expect(logger.info).toHaveBeenCalledWith("License found in GraphQL");
     expect(result).toBe(1);
   });
 
@@ -70,6 +71,7 @@ describe("calculateLicenseScore", () => {
     vi.spyOn(fsPromises, "readFile").mockResolvedValueOnce("").mockResolvedValueOnce('{ "license": "MIT" }');
 
     const result = await calculateLicenseScore("owner", "repo");
+    expect(logger.info).toHaveBeenCalledWith("License found in package.json");
     expect(result).toBe(1);
   });
 
