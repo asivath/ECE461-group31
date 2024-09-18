@@ -14,7 +14,7 @@ export async function getGithubRepo(url: string): Promise<returnRepo> {
   // Updated regex to allow .js, .io, and other extensions in the repo name, and handle trailing slashes
   const githubRegex =
     /^(?:ssh:\/\/git@|https:\/\/)?github\.com\/(?<owner>[a-zA-Z0-9\-_]+)\/(?<packageName>[a-zA-Z0-9\-_.]+?)(?:\/)?(?:\.git)?$/;
-
+  
   if (npmRegex.test(trimmedUrl)) {
     return handleNpmUrl(trimmedUrl, npmRegex, githubRegex);
   } else if (githubRegex.test(trimmedUrl)) {
