@@ -1,20 +1,52 @@
-import { describe, it, expect, vi, Mock, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { calculateLicenseScore } from "../metrics/license.ts"; // Adjust the import path
 import { graphqlClient } from "../graphqlClient.ts";
-import { cloneRepo } from "../util.ts";
-import fs from "fs/promises";
+import * as fsPromises from "fs/promises";
+import * as graphqlClientModule from "../graphqlClient.ts";
+import { getLogger } from "../logger.ts";
 
-vi.mock("../graphqlClient.ts");
-vi.mock("../util.ts");
-vi.mock("fs/promises");
+vi.mock("../graphqlClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof graphqlClientModule>();
+  return {
+    ...actual,
+    graphqlClient: {
+      request: vi.fn().mockResolvedValue({
+        repository: {
+          licenseInfo: {
+            spdxId: null
+          }
+        }
+      })
+    }
+  };
+});
+vi.mock("fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof fsPromises>();
+  return {
+    ...actual,
+    readFile: vi.fn()
+  };
+});
+vi.mock("../util.ts", () => ({
+  cloneRepo: vi.fn().mockResolvedValue("mockRepoDir")
+}));
+vi.mock("../logger.ts", () => {
+  return {
+    getLogger: vi.fn().mockReturnValue({
+      debug: vi.fn(),
+      info: vi.fn()
+    })
+  };
+});
 
 describe("calculateLicenseScore", () => {
+  const logger = getLogger();
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("should return 1 when the license is found in GraphQL response", async () => {
-    graphqlClient.request = vi.fn().mockResolvedValue({
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValueOnce({
       repository: {
         licenseInfo: {
           spdxId: "MIT"
@@ -22,54 +54,47 @@ describe("calculateLicenseScore", () => {
       }
     });
 
-    fs.readFile = vi.fn().mockResolvedValue("");
-
     const result = await calculateLicenseScore("owner", "repo");
+    expect(logger.info).toHaveBeenCalledWith("License found in GraphQL");
     expect(result).toBe(1);
   });
 
   it("should return 1 when the license is found in README.md", async () => {
-    (graphqlClient.request as Mock).mockResolvedValue({
-      repository: {
-        licenseInfo: {
-          spdxId: null
-        }
-      }
-    });
-
-    (cloneRepo as Mock).mockResolvedValue("/mock/repo/dir");
-    (fs.readFile as Mock).mockResolvedValue("This project is licensed under the MIT License.");
+    vi.spyOn(fsPromises, "readFile").mockResolvedValueOnce("Some content with MIT license information.");
 
     const result = await calculateLicenseScore("owner", "repo");
+    expect(logger.info).toHaveBeenCalledWith("License found in README.md");
+    expect(result).toBe(1);
+  });
+
+  it("should return 1 when the license is found in package.json", async () => {
+    vi.spyOn(fsPromises, "readFile").mockResolvedValueOnce("").mockResolvedValueOnce('{ "license": "MIT" }');
+
+    const result = await calculateLicenseScore("owner", "repo");
+    expect(logger.info).toHaveBeenCalledWith("License found in package.json");
     expect(result).toBe(1);
   });
 
   it("should return 0 when no license is found in GraphQL or README.md", async () => {
-    graphqlClient.request = vi.fn().mockResolvedValue({
-      repository: {
-        licenseInfo: {
-          spdxId: null
-        }
-      }
-    });
-
-    fs.readFile = vi.fn().mockResolvedValue("Some content without any license information.");
+    vi.spyOn(fsPromises, "readFile")
+      .mockResolvedValueOnce("Some content without any license information.")
+      .mockResolvedValueOnce("");
 
     const result = await calculateLicenseScore("owner", "repo");
     expect(result).toBe(0);
   });
 
   it("should handle errors in GraphQL request", async () => {
-    graphqlClient.request = vi.fn().mockRejectedValue(new Error("GraphQL request failed"));
+    graphqlClient.request = vi.fn().mockRejectedValueOnce(new Error("GraphQL request failed"));
 
-    fs.readFile = vi.fn().mockResolvedValue("");
+    vi.spyOn(fsPromises, "readFile").mockResolvedValueOnce("");
 
     const result = await calculateLicenseScore("owner", "repo");
     expect(result).toBe(0);
   });
 
   it("should handle errors in README.md file reading", async () => {
-    graphqlClient.request = vi.fn().mockResolvedValue({
+    graphqlClient.request = vi.fn().mockResolvedValueOnce({
       repository: {
         licenseInfo: {
           spdxId: null
@@ -77,7 +102,16 @@ describe("calculateLicenseScore", () => {
       }
     });
 
-    fs.readFile = vi.fn().mockRejectedValue(new Error("README.md not found"));
+    vi.spyOn(fsPromises, "readFile").mockRejectedValueOnce(new Error("README.md not found"));
+
+    const result = await calculateLicenseScore("owner", "repo");
+    expect(result).toBe(0);
+  });
+
+  it("should handle errors in package.json file reading", async () => {
+    vi.spyOn(fsPromises, "readFile")
+      .mockResolvedValueOnce("")
+      .mockRejectedValueOnce(new Error("package.json not found"));
 
     const result = await calculateLicenseScore("owner", "repo");
     expect(result).toBe(0);

@@ -8,11 +8,6 @@ import { exec } from "child_process";
 import { describe, it, expect, afterAll } from "vitest";
 import path from "path";
 import fs from "fs/promises";
-// import { calculateNetScore } from "../metrics/netScore.ts";
-// import { calculateRampUpScore } from "../metrics/rampUp.ts";
-// import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";
-// import { calculateCorrectness } from "../metrics/correctness.ts";
-// import { calculateLicenseScore } from "../metrics/license.ts";
 
 type ExecError = {
   stdout: string;
@@ -49,9 +44,9 @@ describe("E2E Test", () => {
 
       // Instead of being smart and actually trying to calculate the actual values (we would need to subtact the index.test.ts tests), we will just hardcode it, so these needs to be updated if the tests are updated
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
-      expect(totalTests).toBe(53);
-      expect(totalPassed).toBe(53);
-      expect(lineCoverage).toBe(95.18);
+      expect(totalTests).toBe(55);
+      expect(totalPassed).toBe(55);
+      expect(lineCoverage).toBe(94.4);
     }
   });
 
