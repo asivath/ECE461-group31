@@ -82,3 +82,28 @@ export type ResponsiveMaintainerResponse = {
     };
   };
 };
+
+export type BusFactorResponse = {
+  repository: {
+    defaultBranchRef: {
+      target: {
+        history: {
+          edges: {
+            node: {
+              author: {
+                user: {
+                  login: string;
+                } | null;
+              };
+              committedDate: string;
+            };
+          }[];
+          pageInfo: {
+            endCursor: string | null;
+            hasNextPage: boolean;
+          };
+        };
+      };
+    };
+  };
+};

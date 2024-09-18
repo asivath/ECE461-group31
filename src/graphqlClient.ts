@@ -101,3 +101,32 @@ export const GET_VALUES_FOR_RESPONSIVE_MAINTAINER = gql`
     }
   }
 `;
+
+export const GET_VALUES_FOR_BUS_FACTOR = gql`
+  query getCommits($repoOwner: String!, $repoName: String!, $since: GitTimestamp!, $after: String) {
+    repository(owner: $repoOwner, name: $repoName) {
+      defaultBranchRef {
+        target {
+          ... on Commit {
+            history(since: $since, first: 100, after: $after) {
+              edges {
+                node {
+                  author {
+                    user {
+                      login
+                    }
+                  }
+                  committedDate
+                }
+              }
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
