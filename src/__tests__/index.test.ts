@@ -24,7 +24,7 @@ afterAll(async () => {
 
 describe("E2E Test", () => {
   const execAsync = promisify(exec);
-  // const testDir = path.resolve(__dirname, "..", "..", "test-files");
+  const testDir = path.resolve(__dirname, "..", "..", "test-files");
 
   it('should run "./run test" and output results', { timeout: 10000 }, async () => {
     const { stdout } = await execAsync("./run test", { env: { ...process.env, NODE_ENV: "test" } });
@@ -44,45 +44,41 @@ describe("E2E Test", () => {
 
       // Instead of being smart and actually trying to calculate the actual values (we would need to subtact the index.test.ts tests), we will just hardcode it, so these needs to be updated if the tests are updated
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
-      expect(totalTests).toBe(52);
-      expect(totalPassed).toBe(52);
-      expect(lineCoverage).toBe(95.09);
+      expect(totalTests).toBe(55);
+      expect(totalPassed).toBe(55);
+      expect(lineCoverage).toBe(94.4);
     }
   });
 
-  // it("should calculate a netscore", async () => {
-  //   await fs.mkdir(testDir, { recursive: true });
+  it("should calculate a netscore", async () => {
+    await fs.mkdir(testDir, { recursive: true });
 
-  //   // const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const filePath = path.join(testDir, "sampleURL.txt");
+    await fs.writeFile(filePath, `https://www.npmjs.com/package/browserify`);
 
-  //   //////REPLACE WITH ACTUAL EXPECTED VALUES////////
-  //   const expected = JSON.stringify({
-  //     URL: "https://github.com/cloudinary/cloudinary_npm",
-  //     NetScore: 0.19,
-  //     NetScore_Latency: -1,
-  //     RampUp: 0.27,
-  //     RampUp_Latency: -1,
-  //     Correctness: 0,
-  //     Correctness_Latency: -1,
-  //     BusFactor: -1,
-  //     BusFactor_Latency: -1,
-  //     ResponsiveMaintainer: 0.09,
-  //     ResponsiveMaintainer_Latency: -1,
-  //     License: 1,
-  //     License_Latency: -1
-  //   });
+    const { stdout } = await execAsync(`./run ${filePath}`, {
+      env: { ...process.env, NODE_ENV: "test", LOG_LEVEL: "0" }
+    });
 
-  //   const filePath = path.join(testDir, "sampleURL.txt");
+    const actual = JSON.parse(stdout.trim());
 
-  //   await fs.writeFile(filePath, `https://github.com/cloudinary/cloudinary_npm`);
+    // Validate static values
+    expect(actual.URL).toBe("https://www.npmjs.com/package/browserify");
+    expect(actual.NetScore).toBe(0.35);
+    expect(actual.RampUp).toBe(0.29);
+    expect(actual.Correctness).toBe(0);
+    expect(actual.BusFactor).toBe(0.15);
+    expect(actual.ResponsiveMaintainer).toBe(0.02);
+    expect(actual.License).toBe(1);
 
-  //   // await calculateNetScore(filePath);
-
-  //   const { stdout } = await execAsync(`./run ${filePath}`, { env: { ...process.env, NODE_ENV: "test", LOG_LEVEL: "0" }});
-
-  //   expect(stdout).toBe(expected.trim());
-
-  // }, 50000);
+    // Validate latency ranges
+    expect(actual.NetScore_Latency).toBeGreaterThan(0);
+    expect(actual.RampUp_Latency).toBeGreaterThan(0);
+    expect(actual.Correctness_Latency).toBeGreaterThan(0);
+    expect(actual.BusFactor_Latency).toBeGreaterThan(0);
+    expect(actual.ResponsiveMaintainer_Latency).toBeGreaterThan(0);
+    expect(actual.License_Latency).toBeGreaterThan(0);
+  }, 50000);
 
   it("should fail with no command provided", async () => {
     try {
