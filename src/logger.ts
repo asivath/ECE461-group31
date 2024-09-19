@@ -37,7 +37,7 @@ const initializeLogger = () => {
     })
   );
 
-  const logDir = process.env.LOG_FILE || "logs/default.log";
+  const logDir = process.env.LOG_FILE;
 
   // Create the logger instance and directly assign it to bareLogger
   bareLogger = winston.createLogger({
@@ -93,7 +93,7 @@ export const logTestResults = async () => {
   const command =
     process.env.NODE_ENV === "test"
       ? "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
-      : "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json";
+      : "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage1 --silent --reporter=json --outputFile=logCoverage1/test-results.json";
   try {
     await asyncExec(command).catch((error) => {
       logger.debug(
@@ -101,16 +101,18 @@ export const logTestResults = async () => {
         error
       );
     });
-    const file = await readFile(path.resolve(__dirname, "..", "logCoverage", "test-results.json"), "utf-8");
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- file path is controlled
+    const file = await readFile(path.resolve(__dirname, "..", process.env.NODE_ENV === "test" ? "logCoverage": "logCoverage1", "test-results.json"), "utf-8");
     const results = JSON.parse(file);
     const totalTests = results.numTotalTests;
     const totalPassed = results.numPassedTests;
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- file path is controlled
     const coverageSummary = await readFile(
-      path.resolve(__dirname, "..", "logCoverage", "coverage-summary.json"),
+      path.resolve(__dirname, "..", process.env.NODE_ENV === "test" ? "logCoverage": "logCoverage1", "coverage-summary.json"),
       "utf-8"
     );
     const coverage = JSON.parse(coverageSummary);
-    const lineCoverage = coverage.total.lines.pct;
+    const lineCoverage = parseInt(coverage.total.lines.pct);
     logger.console(`Total: ${totalTests}`);
     logger.console(`Passed: ${totalPassed}`);
     logger.console(`Coverage: ${lineCoverage}%`);
@@ -120,6 +122,6 @@ export const logTestResults = async () => {
     throw error;
   } finally {
     if (process.env.NODE_ENV !== "test")
-      await rm(path.resolve(__dirname, "..", "logCoverage"), { recursive: true, force: true });
+      await rm(path.resolve(__dirname, "..", "logCoverage1"), { recursive: true, force: true });
   }
 };
