@@ -42,15 +42,10 @@ export async function calculateNetScore(linkPath: string): Promise<void> {
       ]);
 
     const { score: licenseScore, latency: licenseLatency } = licenseScoreResult;
-
     const { score: rampUpScore, latency: rampUpLatency } = rampUpScoreResult;
-
     const { score: responsiveMaintainerScore, latency: responsiveMaintainerLatency } = responsiveMaintainerScoreResult;
-
     const { score: busFactor, latency: busFactorLatency } = busFactorResult;
-
     const { score: correctness, latency: correctnessLatency } = correctnessResult;
-
     const netScore =
       0.3 * licenseScore + 0.1 * rampUpScore + 0.15 * responsiveMaintainerScore + 0.15 * busFactor + 0.3 * correctness;
 
