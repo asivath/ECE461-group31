@@ -93,6 +93,8 @@ jobs:
 
       - name: Run Tests
         id: run_tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm run test:cicd > test_output.log 2>&1 || echo "test_failed=true" >> $GITHUB_OUTPUT
 
