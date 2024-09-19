@@ -1,3 +1,6 @@
+/**
+ * Utility functions for the application. These functions are used to clone repositories and validate file paths.
+ */
 import { SimpleGit, simpleGit } from "simple-git";
 import path from "path";
 import { fileURLToPath } from "url";

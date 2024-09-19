@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the logger.ts file.
+ */
 import { describe, it, expect, vi, afterEach, beforeAll, beforeEach, afterAll } from "vitest";
 import fs from "fs/promises";
 import path from "path";

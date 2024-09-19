@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the responsiveMaintainer metric.
+ */
 import { vi, describe, beforeEach, it, expect } from "vitest";
 import * as graphqlClientModule from "../graphqlClient.ts";
 import { calculateResponsiveMaintainerScore } from "../metrics/responsiveMaintainer.ts";

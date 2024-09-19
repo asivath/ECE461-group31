@@ -1,3 +1,6 @@
+/**
+ * Main entry point for the application
+ */
 import { exit } from "process";
 import { getLogger, logTestResults } from "./logger.ts";
 import fs from "fs/promises";
@@ -33,7 +36,6 @@ switch (commandOrFile) {
     break;
   default:
     logger.info("Processing URL file");
-    // TODO: Run URL processing
     await calculateNetScore(commandOrFile).catch((e) => {
       logger.debug(e);
       console.error(e);

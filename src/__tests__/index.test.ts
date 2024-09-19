@@ -79,7 +79,6 @@ describe("E2E Test", () => {
     expect(actual.License_Latency).toBeGreaterThan(0);
 
     expect(actual.NetScore).toBe(0.35);
-
   }, 50000);
 
   it("should fail with no command provided", async () => {

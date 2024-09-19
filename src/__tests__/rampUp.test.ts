@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the ramp-up score calculation logic.
+ */
 import { describe, vi, expect, beforeEach, it } from "vitest";
 import { calculateRampUpScore } from "../metrics/rampUp.ts";
 import { getLogger } from "../logger.ts";

@@ -1,3 +1,6 @@
+/**
+ * This module calculates the correctness score of a repository
+ */
 import { ESLint } from "eslint";
 import { getLogger } from "../logger.ts";
 
@@ -17,6 +20,12 @@ export async function calculateCorrectness(repoDir: string | null, totalLines: n
   return eslintScore;
 }
 
+/**
+ * Calculate the ESLint score of a repository. The score is based on the number of errors and warnings found by ESLint. Errors are weighted 5 times more than warnings.
+ * @param repoDir The directory of the repository
+ * @param totalLines The total number of lines of code in the repository
+ * @returns The ESLint score of the repository
+ */
 async function calculateESLintScore(repoDir: string, totalLines: number): Promise<number> {
   try {
     const eslint = new ESLint({ ignore: false });

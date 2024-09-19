@@ -1,3 +1,6 @@
+/**
+ * This module contains the logger and functions to log the test results.
+ */
 import winston from "winston";
 import path from "path";
 import { readFile, rm } from "fs/promises";
@@ -14,6 +17,9 @@ type CustomLogger = {
 
 let bareLogger: CustomLogger | null = null;
 
+/**
+ * Initialize the logger instance.
+ */
 const initializeLogger = () => {
   const logLevel = (() => {
     const level = process.env.LOG_LEVEL;
@@ -102,13 +108,26 @@ export const logTestResults = async () => {
       );
     });
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- file path is controlled
-    const file = await readFile(path.resolve(__dirname, "..", process.env.NODE_ENV === "test" ? "logCoverage": "logCoverage1", "test-results.json"), "utf-8");
+    const file = await readFile(
+      path.resolve(
+        __dirname,
+        "..",
+        process.env.NODE_ENV === "test" ? "logCoverage" : "logCoverage1",
+        "test-results.json"
+      ),
+      "utf-8"
+    );
     const results = JSON.parse(file);
     const totalTests = results.numTotalTests;
     const totalPassed = results.numPassedTests;
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- file path is controlled
     const coverageSummary = await readFile(
-      path.resolve(__dirname, "..", process.env.NODE_ENV === "test" ? "logCoverage": "logCoverage1", "coverage-summary.json"),
+      path.resolve(
+        __dirname,
+        "..",
+        process.env.NODE_ENV === "test" ? "logCoverage" : "logCoverage1",
+        "coverage-summary.json"
+      ),
       "utf-8"
     );
     const coverage = JSON.parse(coverageSummary);

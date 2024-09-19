@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the correctness metric.
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { calculateCorrectness } from "../metrics/correctness.ts";
 import { cloneRepo } from "../util.ts";
