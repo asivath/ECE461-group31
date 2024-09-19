@@ -1,3 +1,6 @@
+/**
+ * Calculate the net score of a repository
+ */
 import { calculateLicenseScore } from "./license.ts";
 import { calculateRampUpScore } from "./rampUp.ts";
 import { calculateResponsiveMaintainerScore } from "./responsiveMaintainer.ts";
@@ -72,6 +75,11 @@ export async function calculateNetScore(linkPath: string): Promise<void> {
   }
 }
 
+/**
+ * Calculate the score of a function and return the score and latency
+ * @param calculateFn The function to calculate the score
+ * @returns The score and latency
+ */
 async function calculateWithLatency(calculateFn: () => Promise<number>): Promise<{ score: number; latency: number }> {
   const startTime = Date.now();
   const score = await calculateFn();

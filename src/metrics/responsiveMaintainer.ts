@@ -1,3 +1,6 @@
+/**
+ * Calculate the responsive maintainer score of a repository
+ */
 import { graphqlClient, GET_VALUES_FOR_RESPONSIVE_MAINTAINER } from "../graphqlClient.ts";
 import { ResponsiveMaintainerResponse } from "../types.ts";
 import { differenceInDays } from "date-fns";
@@ -6,7 +9,7 @@ import { getLogger } from "../logger.ts";
 const logger = getLogger();
 
 /**
- * Calculate the responsive maintainer score of a repository
+ * Calculate the responsive maintainer score of a repository. The score is based on the median response time of issues and the closure rate of issues.
  * @param repoOwner The owner of the repository
  * @param repoName The name of the repository
  * @returns The responsive maintainer score of the repository
@@ -43,6 +46,11 @@ export async function calculateResponsiveMaintainerScore(repoOwner: string, repo
   }
 }
 
+/**
+ * Calculate the median response time of issues in a repository
+ * @param issues The issues in the repository
+ * @returns The median response time of the issues
+ */
 function calculateMedianResponseTime(issues: { node: { createdAt: string; closedAt: string } }[]): number {
   if (issues.length === 0) {
     return -1;

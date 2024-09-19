@@ -1,3 +1,6 @@
+/** 
+ * This module contains the logger and functions to log the test results.
+ */
 import winston from "winston";
 import path from "path";
 import { readFile, rm } from "fs/promises";
@@ -14,6 +17,9 @@ type CustomLogger = {
 
 let bareLogger: CustomLogger | null = null;
 
+/**
+ * Initialize the logger instance.
+ */
 const initializeLogger = () => {
   const logLevel = (() => {
     const level = process.env.LOG_LEVEL;

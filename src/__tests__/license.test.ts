@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the license metric.
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { calculateLicenseScore } from "../metrics/license.ts"; // Adjust the import path
 import { graphqlClient } from "../graphqlClient.ts";

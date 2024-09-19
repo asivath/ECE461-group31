@@ -1,3 +1,6 @@
+/**
+ * Calculate the bus factor score of a repository
+ */
 import { graphqlClient, GET_VALUES_FOR_BUS_FACTOR } from "../graphqlClient.ts";
 import { BusFactorResponse } from "../types.ts";
 import { getLogger } from "../logger.ts";

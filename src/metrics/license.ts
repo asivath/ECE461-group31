@@ -1,3 +1,6 @@
+/**
+ * This file contains the functions to calculate the license score of a repository
+ */
 import { graphqlClient, GET_VALUES_FOR_LICENSE } from "../graphqlClient.ts";
 import { LicenseReponse } from "../types.ts";
 import { getLogger } from "../logger.ts";
@@ -6,7 +9,6 @@ import { readFile } from "fs/promises";
 
 const logger = getLogger();
 
-// Convert the list of licenses to a Set for faster lookup
 const Licenses = new Set([
   "MIT",
   "Apache-2.0",
@@ -70,6 +72,12 @@ const Licenses = new Set([
   "zLib License"
 ]);
 
+/**
+ * Fetch the license of a repository from the GitHub GraphQL API
+ * @param repoOwner The owner of the repository
+ * @param repoName The name of the repository
+ * @returns The license of the repository or null if not found
+ */
 async function fetchLicenseFromGraphQL(repoOwner: string, repoName: string): Promise<string | null> {
   try {
     const data: LicenseReponse = await graphqlClient.request(GET_VALUES_FOR_LICENSE, {
@@ -87,6 +95,11 @@ async function fetchLicenseFromGraphQL(repoOwner: string, repoName: string): Pro
   }
 }
 
+/**
+ * Fetch the license of a repository from the README.md file
+ * @param repoDir The directory of the repository
+ * @returns The license of the repository or null if not found
+ */
 async function fetchLicenseFromReadme(repoDir: string): Promise<string | null> {
   try {
     const readmePath = path.join(repoDir, "README.md");
@@ -107,6 +120,11 @@ async function fetchLicenseFromReadme(repoDir: string): Promise<string | null> {
   }
 }
 
+/**
+ * Fetch the license of a repository from the package.json file
+ * @param repoDir The directory of the repository
+ * @returns The license of the repository or null if not found
+ */
 async function fetchLicenseFromPackageJson(repoDir: string): Promise<string | null> {
   try {
     const packageJsonPath = path.join(repoDir, "package.json");
@@ -122,7 +140,7 @@ async function fetchLicenseFromPackageJson(repoDir: string): Promise<string | nu
 }
 
 /**
- * Calculate the license score of a repository
+ * Calculate the license score of a repository. The score is based on the presence of a license in the repository.
  * @param repoOwner The owner of the repository
  * @param repoName The name of the repository
  * @returns The license score of the repository

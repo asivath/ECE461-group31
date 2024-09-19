@@ -1,3 +1,6 @@
+/**
+ * Calculate the rampUp score of a repository
+ */
 import { graphqlClient, GET_VALUES_FOR_RAMP_UP } from "../graphqlClient.ts";
 import { RampUpResponse } from "../types.ts";
 import { differenceInDays } from "date-fns";
@@ -6,7 +9,7 @@ import { getLogger } from "../logger.ts";
 const logger = getLogger();
 
 /**
- * Calculate the rampUp score of a repository
+ * Calculate the rampUp score of a repository. The score is based on the average days to first activity and the presence of a README and CONTRIBUTING file.
  * @param repoOwner The owner of the repository
  * @param repoName The name of the repository
  * @param firstForks The number of forks to fetch
@@ -42,6 +45,11 @@ export async function calculateRampUpScore(
   }
 }
 
+/**
+ * Calculate the average days to first activity of a repository. The activity is defined as the first commit, pull request, or issue.
+ * @param data The data from the GraphQL query
+ * @returns The average days to first activity of the repository
+ */
 async function calculateAverageDaysToFirstActivity(data: RampUpResponse): Promise<number> {
   let totalDays = 0;
   let forksWithActivity = 0;
@@ -69,6 +77,13 @@ async function calculateAverageDaysToFirstActivity(data: RampUpResponse): Promis
   return forksWithActivity > 0 ? totalDays / forksWithActivity : 0;
 }
 
+/**
+ * Calculate the documentation weight of a repository. The weight is based on the presence of a README and CONTRIBUTING file.
+ * @param data The data from the GraphQL query
+ * @param repoOwner The owner of the repository
+ * @param repoName The name of the repository
+ * @returns The documentation weight of the repository
+ */
 async function calculateDocumentationWeight(
   data: RampUpResponse,
   repoOwner: string,
@@ -88,6 +103,12 @@ async function calculateDocumentationWeight(
   }
 }
 
+/**
+ * Calculate the target time for a repository.
+ * @param repoDir The directory of the repository
+ * @param loc The lines of code in the repository
+ * @returns The target time for the repository
+ */
 async function calculateTargetTime(repoDir: string, loc: number): Promise<number> {
   try {
     logger.debug(`Lines of code: ${loc}`);

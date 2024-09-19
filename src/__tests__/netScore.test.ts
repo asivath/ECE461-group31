@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the calculateNetScore function in metrics/netScore.ts
+ */
 import { describe, it, expect, vi } from "vitest";
 import { calculateNetScore } from "../metrics/netScore.ts";
 import { calculateLicenseScore } from "../metrics/license.ts";

@@ -1,3 +1,6 @@
+/**
+ * This file contains all the types used in the application.
+ */
 export type returnRepo = {
   owner: string;
   packageName: string;

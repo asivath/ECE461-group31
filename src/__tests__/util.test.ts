@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the utility functions in util.ts.
+ */
 import { describe, it, expect, vi, Mock, beforeEach } from "vitest";
 import { cloneRepo, isValidFilePath } from "../util.ts";
 import fs from "fs/promises";

@@ -1,3 +1,6 @@
+/**
+ * This file contains tests for the bus factor metric.
+ */
 import { describe, it, vi, expect, beforeEach } from "vitest";
 import { calculateBusFactorScore } from "../metrics/busFactor.ts";
 import * as graphqlClientModule from "../graphqlClient.ts";
