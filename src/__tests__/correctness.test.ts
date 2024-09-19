@@ -41,7 +41,7 @@ describe("calculateCorrectness", () => {
   it("should return 0 if the repository cannot be cloned", async () => {
     vi.mocked(cloneRepo).mockResolvedValueOnce(null);
 
-    const result = await calculateCorrectness("owner", "repo");
+    const result = await calculateCorrectness("mockrepo", 0);
     expect(result).toBe(0);
   });
 
@@ -74,7 +74,7 @@ describe("calculateCorrectness", () => {
       });
     });
 
-    await calculateCorrectness("owner", "repo");
+    await calculateCorrectness("mockRepoDir", 20000);
 
     const expectedScore = 1 - (5 * 5 + 2) / 20000;
     expect(logger.debug).toHaveBeenCalledWith(
@@ -99,7 +99,7 @@ describe("calculateCorrectness", () => {
     ];
     vi.spyOn(ESLint.prototype, "lintFiles").mockResolvedValueOnce(mockESLintResults);
 
-    await calculateCorrectness("owner", "repo");
+    await calculateCorrectness("mockRepoDir", 20000);
 
     const expectedScore = Math.max(0, Math.min(1, 1 - (5 * 100000 + 5000) / 20000));
     expect(logger.debug).toHaveBeenCalledWith(
@@ -126,7 +126,7 @@ describe("calculateCorrectness", () => {
     const mockExec = vi.fn().mockResolvedValue({ stdout: "{}" });
     vi.spyOn(utilModule, "promisify").mockReturnValueOnce(mockExec);
 
-    const result = await calculateCorrectness("owner", "repo");
+    const result = await calculateCorrectness("mockRepoDir", 0);
 
     expect(logger.debug).toHaveBeenCalledWith(`No lines of code found in mockRepoDir`);
     expect(result).toBe(0);
@@ -135,7 +135,7 @@ describe("calculateCorrectness", () => {
   it("should return 0 if there is an error calculating ESLint score", async () => {
     vi.spyOn(ESLint.prototype, "lintFiles").mockRejectedValueOnce(new Error("ESLint error"));
 
-    const result = await calculateCorrectness("owner", "repo");
+    const result = await calculateCorrectness("mockrepo", 20000);
 
     expect(logger.info).toHaveBeenCalledWith("Failed to calculate ESLint score: Error: ESLint error");
     expect(result).toBe(0);

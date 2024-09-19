@@ -1,7 +1,6 @@
 import { graphqlClient, GET_VALUES_FOR_LICENSE } from "../graphqlClient.ts";
 import { LicenseReponse } from "../types.ts";
 import { getLogger } from "../logger.ts";
-import { cloneRepo } from "../util.ts";
 import path from "path";
 import { readFile } from "fs/promises";
 
@@ -88,14 +87,8 @@ async function fetchLicenseFromGraphQL(repoOwner: string, repoName: string): Pro
   }
 }
 
-async function fetchLicenseFromReadme(repoOwner: string, repoName: string): Promise<string | null> {
+async function fetchLicenseFromReadme(repoDir: string): Promise<string | null> {
   try {
-    const repoDir = await cloneRepo(`https://github.com/${repoOwner}/${repoName}.git`, repoName);
-    if (!repoDir) {
-      logger.info("Failed to clone repository");
-      return null;
-    }
-
     const readmePath = path.join(repoDir, "README.md");
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is controlled by the script
     const readmeContent = await readFile(readmePath, "utf8");
@@ -114,13 +107,8 @@ async function fetchLicenseFromReadme(repoOwner: string, repoName: string): Prom
   }
 }
 
-async function fetchLicenseFromPackageJson(repoOwner: string, repoName: string): Promise<string | null> {
+async function fetchLicenseFromPackageJson(repoDir: string): Promise<string | null> {
   try {
-    const repoDir = await cloneRepo(`https://github.com/${repoOwner}/${repoName}.git`, repoName);
-    if (!repoDir) {
-      logger.info("Failed to clone repository");
-      return null;
-    }
     const packageJsonPath = path.join(repoDir, "package.json");
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- filePath is controlled by the script
     const packageJson = await readFile(packageJsonPath, "utf8");
@@ -139,20 +127,20 @@ async function fetchLicenseFromPackageJson(repoOwner: string, repoName: string):
  * @param repoName The name of the repository
  * @returns The license score of the repository
  */
-export async function calculateLicenseScore(repoOwner: string, repoName: string): Promise<number> {
+export async function calculateLicenseScore(repoOwner: string, repoName: string, repoDir: string): Promise<number> {
   const restLicense = await fetchLicenseFromGraphQL(repoOwner, repoName);
   if (restLicense) {
     logger.info("License found in GraphQL");
     return 1;
   }
 
-  const readmeLicense = await fetchLicenseFromReadme(repoOwner, repoName);
+  const readmeLicense = await fetchLicenseFromReadme(repoDir);
   if (readmeLicense) {
     logger.info("License found in README.md");
     return 1;
   }
 
-  const packageJsonLicense = await fetchLicenseFromPackageJson(repoOwner, repoName);
+  const packageJsonLicense = await fetchLicenseFromPackageJson(repoDir);
   if (packageJsonLicense) {
     logger.info("License found in package.json");
     return 1;

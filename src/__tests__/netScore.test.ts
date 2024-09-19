@@ -8,6 +8,7 @@ import { calculateBusFactorScore } from "../metrics/busFactor.ts";
 import { processURLs } from "../processURL.ts";
 import { getLogger } from "../logger.ts";
 import { beforeEach } from "node:test";
+import { cloneRepo } from "../util.ts";
 
 vi.mock("../logger.ts", () => {
   return {
@@ -40,20 +41,24 @@ vi.mock("../metrics/busFactor.ts", () => ({
 }));
 
 vi.mock("../processURL.ts", () => ({
-  processURLs: vi
-    .fn()
-    .mockResolvedValue([
-      { packageName: "test-package", owner: "test-owner", url: "https://github.com/test/test-package" }
-    ])
+  processURLs: vi.fn().mockResolvedValue([
+    { packageName: "test-package", owner: "test-owner", url: "https://github.com/test/test-package" }
+  ])
 }));
 
-vi.mock("../metrics/netScore.ts", async () => {
-  const actual = await vi.importActual("../metrics/netScore.ts");
-  return {
-    ...actual,
-    calculateBusFactor: vi.fn().mockResolvedValue(-1)
-  };
-});
+vi.mock("../util.ts", () => ({
+  cloneRepo: vi.fn().mockResolvedValue("mockRepoDir")
+}));
+
+vi.mock("util", () => ({
+  promisify: vi.fn(() => {
+    return vi.fn().mockResolvedValue({ stdout: JSON.stringify({
+      JavaScript: { code: 1000 },
+      TypeScript: { code: 500 },
+      SUM: { code: 1500 }
+    }) });
+  })
+}));
 
 describe("calculateNetScore", () => {
   const logger = getLogger();
@@ -66,10 +71,11 @@ describe("calculateNetScore", () => {
     await calculateNetScore("path/to/url_file.txt");
 
     expect(processURLs).toHaveBeenCalledWith("path/to/url_file.txt");
-    expect(calculateLicenseScore).toHaveBeenCalledWith("test-owner", "test-package");
-    expect(calculateRampUpScore).toHaveBeenCalledWith("test-owner", "test-package");
+    expect(cloneRepo).toHaveBeenCalledWith("https://github.com/test-owner/test-package.git", "test-package");
+    expect(calculateLicenseScore).toHaveBeenCalledWith("test-owner", "test-package", "mockRepoDir");
+    expect(calculateRampUpScore).toHaveBeenCalledWith("test-owner", "test-package", "mockRepoDir", 1500);
     expect(calculateResponsiveMaintainerScore).toHaveBeenCalledWith("test-owner", "test-package");
-    expect(calculateCorrectness).toHaveBeenCalledWith("test-owner", "test-package");
+    expect(calculateCorrectness).toHaveBeenCalledWith("mockRepoDir", 1500);
     expect(calculateBusFactorScore).toHaveBeenCalledWith("test-owner", "test-package");
 
     expect(logger.console).toHaveBeenCalledWith(

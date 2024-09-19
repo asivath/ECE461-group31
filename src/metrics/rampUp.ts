@@ -2,9 +2,6 @@ import { graphqlClient, GET_VALUES_FOR_RAMP_UP } from "../graphqlClient.ts";
 import { RampUpResponse } from "../types.ts";
 import { differenceInDays } from "date-fns";
 import { getLogger } from "../logger.ts";
-import { exec } from "child_process";
-import { promisify } from "util";
-import { cloneRepo } from "../util.ts";
 
 const logger = getLogger();
 
@@ -15,7 +12,7 @@ const logger = getLogger();
  * @param firstForks The number of forks to fetch
  * @returns The rampUp score of the repository
  */
-export async function calculateRampUpScore(repoOwner: string, repoName: string, firstForks = 50): Promise<number> {
+export async function calculateRampUpScore(repoOwner: string, repoName: string, repoDir: string, loc: number, firstForks = 50): Promise<number> {
   try {
     const data: RampUpResponse = await graphqlClient.request(GET_VALUES_FOR_RAMP_UP, {
       repoOwner,
@@ -24,8 +21,7 @@ export async function calculateRampUpScore(repoOwner: string, repoName: string, 
     });
     const averageDays = await calculateAverageDaysToFirstActivity(data);
     const documentationWeight = await calculateDocumentationWeight(data, repoOwner, repoName);
-    const repoDir = await cloneRepo(`https://github.com/${repoOwner}/${repoName}.git`, repoName);
-    const targetTime = repoDir ? await calculateTargetTime(repoDir) : 21;
+    const targetTime = repoDir ? await calculateTargetTime(repoDir, loc) : 21;
     const constant = targetTime / Math.log(1.05);
     const averageTimeValue = Math.max(Math.exp(-(averageDays - targetTime) / constant), 0.3);
     const score = Math.min(1, averageTimeValue * documentationWeight);
@@ -86,31 +82,26 @@ async function calculateDocumentationWeight(
   }
 }
 
-async function calculateTargetTime(repoDir: string): Promise<number> {
-  const execPromise = promisify(exec);
+async function calculateTargetTime(repoDir: string, loc: number): Promise<number> {
   try {
-    const { stdout } = await execPromise(`npx cloc --json ${repoDir}`);
-    const clocData = JSON.parse(stdout);
-    const loc = clocData.SUM?.code;
     logger.debug(`Lines of code: ${loc}`);
-    if (loc) {
-      const locNumber = parseInt(loc);
-      if (locNumber <= 5000) {
-        return 7;
-      } else if (locNumber <= 10000) {
-        return 10;
-      } else if (locNumber <= 50000) {
-        return 14;
-      } else if (locNumber <= 100000) {
-        return 21;
-      } else if (locNumber <= 500000) {
-        return 30;
-      } else if (locNumber <= 1000000) {
-        return 45;
-      } else {
-        return 60;
-      }
+
+    if (loc <= 5000) {
+      return 7;
+    } else if (loc <= 10000) {
+      return 10;
+    } else if (loc <= 50000) {
+      return 14;
+    } else if (loc <= 100000) {
+      return 21;
+    } else if (loc <= 500000) {
+      return 30;
+    } else if (loc <= 1000000) {
+      return 45;
+    } else {
+      return 60;
     }
+
   } catch (error) {
     logger.info("Error calculating target time:", error);
   }
