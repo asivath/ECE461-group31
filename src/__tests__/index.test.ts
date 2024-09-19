@@ -64,7 +64,6 @@ describe("E2E Test", () => {
 
     // Validate static values
     expect(actual.URL).toBe("https://www.npmjs.com/package/browserify");
-    expect(actual.NetScore).toBe(0.35);
     expect(actual.RampUp).toBe(0.29);
     expect(actual.Correctness).toBe(0);
     expect(actual.BusFactor).toBe(0.15);
@@ -78,6 +77,9 @@ describe("E2E Test", () => {
     expect(actual.BusFactor_Latency).toBeGreaterThan(0);
     expect(actual.ResponsiveMaintainer_Latency).toBeGreaterThan(0);
     expect(actual.License_Latency).toBeGreaterThan(0);
+
+    expect(actual.NetScore).toBe(0.35);
+
   }, 50000);
 
   it("should fail with no command provided", async () => {
