@@ -21,6 +21,6 @@ export default defineConfig({
       ignoreEmptyLines: true,
       reportOnFailure: true
     },
-    hookTimeout: 30000,
+    hookTimeout: 30000
   }
 });
