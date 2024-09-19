@@ -12,7 +12,13 @@ const logger = getLogger();
  * @param firstForks The number of forks to fetch
  * @returns The rampUp score of the repository
  */
-export async function calculateRampUpScore(repoOwner: string, repoName: string, repoDir: string, loc: number, firstForks = 50): Promise<number> {
+export async function calculateRampUpScore(
+  repoOwner: string,
+  repoName: string,
+  repoDir: string | null,
+  loc: number,
+  firstForks = 50
+): Promise<number> {
   try {
     const data: RampUpResponse = await graphqlClient.request(GET_VALUES_FOR_RAMP_UP, {
       repoOwner,
@@ -101,7 +107,6 @@ async function calculateTargetTime(repoDir: string, loc: number): Promise<number
     } else {
       return 60;
     }
-
   } catch (error) {
     logger.info("Error calculating target time:", error);
   }

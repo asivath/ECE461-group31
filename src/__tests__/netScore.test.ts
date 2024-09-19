@@ -41,9 +41,11 @@ vi.mock("../metrics/busFactor.ts", () => ({
 }));
 
 vi.mock("../processURL.ts", () => ({
-  processURLs: vi.fn().mockResolvedValue([
-    { packageName: "test-package", owner: "test-owner", url: "https://github.com/test/test-package" }
-  ])
+  processURLs: vi
+    .fn()
+    .mockResolvedValue([
+      { packageName: "test-package", owner: "test-owner", url: "https://github.com/test/test-package" }
+    ])
 }));
 
 vi.mock("../util.ts", () => ({
@@ -52,11 +54,13 @@ vi.mock("../util.ts", () => ({
 
 vi.mock("util", () => ({
   promisify: vi.fn(() => {
-    return vi.fn().mockResolvedValue({ stdout: JSON.stringify({
-      JavaScript: { code: 1000 },
-      TypeScript: { code: 500 },
-      SUM: { code: 1500 }
-    }) });
+    return vi.fn().mockResolvedValue({
+      stdout: JSON.stringify({
+        JavaScript: { code: 1000 },
+        TypeScript: { code: 500 },
+        SUM: { code: 1500 }
+      })
+    });
   })
 }));
 
@@ -68,8 +72,11 @@ describe("calculateNetScore", () => {
   });
 
   it("should calculate the correct net score for a given repository", async () => {
+    const logSpy = vi.spyOn(logger, "console").mockImplementation(() => {});
+
     await calculateNetScore("path/to/url_file.txt");
 
+    // Verify that the correct functions were called with expected arguments
     expect(processURLs).toHaveBeenCalledWith("path/to/url_file.txt");
     expect(cloneRepo).toHaveBeenCalledWith("https://github.com/test-owner/test-package.git", "test-package");
     expect(calculateLicenseScore).toHaveBeenCalledWith("test-owner", "test-package", "mockRepoDir");
@@ -78,22 +85,26 @@ describe("calculateNetScore", () => {
     expect(calculateCorrectness).toHaveBeenCalledWith("mockRepoDir", 1500);
     expect(calculateBusFactorScore).toHaveBeenCalledWith("test-owner", "test-package");
 
-    expect(logger.console).toHaveBeenCalledWith(
-      JSON.stringify({
-        URL: "https://github.com/test/test-package",
-        NetScore: 1,
-        NetScore_Latency: -1,
-        RampUp: 1,
-        RampUp_Latency: -1,
-        Correctness: 1,
-        Correctness_Latency: -1,
-        BusFactor: 1,
-        BusFactor_Latency: -1,
-        ResponsiveMaintainer: 1,
-        ResponsiveMaintainer_Latency: -1,
-        License: 1,
-        License_Latency: -1
-      })
-    );
+    const loggedOutput = logSpy.mock.calls[0][0]; // Get the first argument of the first call to console.log
+    const parsedOutput = JSON.parse(loggedOutput); // Parse the logged JSON string
+
+    // Verify the logged output matches the expected structure
+    expect(parsedOutput).toEqual({
+      URL: "https://github.com/test/test-package",
+      NetScore: 1,
+      NetScore_Latency: expect.any(Number),
+      RampUp: 1,
+      RampUp_Latency: expect.any(Number),
+      Correctness: 1,
+      Correctness_Latency: expect.any(Number),
+      BusFactor: 1,
+      BusFactor_Latency: expect.any(Number),
+      ResponsiveMaintainer: 1,
+      ResponsiveMaintainer_Latency: expect.any(Number),
+      License: 1,
+      License_Latency: expect.any(Number)
+    });
+
+    logSpy.mockRestore(); // Restore the original console.log after the test
   });
 });

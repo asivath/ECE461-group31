@@ -79,7 +79,6 @@ describe("getGithubRepo", () => {
 
     expect(repo).toBeNull();
   });
-
 });
 
 describe("processURLs", () => {

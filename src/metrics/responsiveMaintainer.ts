@@ -24,7 +24,7 @@ export async function calculateResponsiveMaintainerScore(repoOwner: string, repo
       logger.debug(`For repository ${repoOwner}/${repoName}, no issues found, assigning score 0.5`);
       return 0.5;
     }
-  
+
     const responseTimeFactor = medianResponseTime == 0 ? 1 : Math.min(1, 7 / medianResponseTime);
 
     const totalIssues = data.repository.allIssues.totalCount;
