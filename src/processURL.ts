@@ -11,7 +11,7 @@ const logger = getLogger();
 /**
  * Get the owner and package name of the GitHub repository from the URL
  * @param url The URL to process
- * @returns The owner and package name of the GitHub repository 
+ * @returns The owner and package name of the GitHub repository
  */
 export async function getGithubRepo(url: string): Promise<returnRepo> {
   const trimmedUrl = url.trim();
@@ -76,7 +76,7 @@ async function getRepoUrlFromNpm(packageName: string, githubRegex: RegExp): Prom
 
 /**
  * Handle the GitHub URL to get the GitHub repository owner and package name
- * @param url The URL to process   
+ * @param url The URL to process
  * @param githubRegex The regex to match the GitHub URL
  * @returns The owner and package name of the GitHub repository
  */

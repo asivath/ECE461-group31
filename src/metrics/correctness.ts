@@ -20,7 +20,6 @@ export async function calculateCorrectness(repoDir: string | null, totalLines: n
   return eslintScore;
 }
 
-
 /**
  * Calculate the ESLint score of a repository. The score is based on the number of errors and warnings found by ESLint. Errors are weighted 5 times more than warnings.
  * @param repoDir The directory of the repository
