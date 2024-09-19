@@ -3,7 +3,7 @@
  */
 import winston from "winston";
 import path from "path";
-import { readFile, rm } from "fs/promises";
+import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -98,15 +98,17 @@ export const logTestResults = async () => {
   // avoid running index.test.ts in E2E tests to prevent infinite loop
   const command =
     process.env.NODE_ENV === "test"
-      ? "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
-      : "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage1 --silent --reporter=json --outputFile=logCoverage1/test-results.json";
+      ? "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
+      : "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage1 --reporter=json --outputFile=logCoverage1/test-results.json";
   try {
-    await asyncExec(command).catch((error) => {
-      logger.debug(
-        "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
-        error
-      );
-    });
+    try {
+      const { stdout, stderr } = await asyncExec(command);
+      if (stderr) {
+        logger.debug(`Error running tests: ${stderr} ${stdout}`);
+      }
+    } catch (error) {
+      logger.debug(error);
+    }
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- file path is controlled
     const file = await readFile(
       path.resolve(
@@ -139,8 +141,5 @@ export const logTestResults = async () => {
   } catch (error) {
     logger.debug(error);
     throw error;
-  } finally {
-    if (process.env.NODE_ENV !== "test")
-      await rm(path.resolve(__dirname, "..", "logCoverage1"), { recursive: true, force: true });
   }
 };

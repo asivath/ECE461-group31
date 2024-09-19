@@ -35,7 +35,7 @@ describe("E2E Test", () => {
 
     const totalMatches = stdout.match(/Total: (\d+)/);
     const passedMatches = stdout.match(/Passed: (\d+)/);
-    const coverageMatches = stdout.match(/Coverage: (\d+\.\d+)%/);
+    const coverageMatches = stdout.match(/Coverage: (\d+)%/);
 
     if (totalMatches && passedMatches && coverageMatches) {
       const totalTests = parseInt(totalMatches[1], 10);
@@ -46,7 +46,9 @@ describe("E2E Test", () => {
       // Don't get the values from ./run test (would defeat the purpose of this test), run the tests using npm run test and get the values from there and get coverage from npm run test:coverage
       expect(totalTests).toBe(52);
       expect(totalPassed).toBe(52);
-      expect(lineCoverage).toBe(94.43);
+      expect(lineCoverage).toBe(94);
+    } else {
+      throw new Error("Could not parse the output");
     }
   });
 

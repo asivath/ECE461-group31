@@ -1,8 +1,7 @@
 /**
  * This file contains the GraphQL client and queries to fetch data from GitHub API.
  */
-import { GraphQLClient } from "graphql-request";
-import { gql } from "graphql-request";
+import { GraphQLClient, gql } from "graphql-request";
 import "dotenv/config";
 
 const endpoint = "https://api.github.com/graphql";

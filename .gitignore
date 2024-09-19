@@ -4,6 +4,6 @@ logs
 coverage
 urls.txt
 .vsls.json
-logCoverage
+logCoverage*
 repos
 .vscode

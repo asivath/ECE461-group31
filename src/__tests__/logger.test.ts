@@ -142,7 +142,7 @@ describe("Logger Tests", () => {
     await logTestResults();
 
     expect(mockExec).toHaveBeenCalledWith(
-      "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
+      "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
     );
     expect(readFileSpy).toHaveBeenCalledTimes(2);
     expect(consoleSpy).toHaveBeenCalledWith("Total: 10");
@@ -163,11 +163,10 @@ describe("Logger Tests", () => {
     await logTestResults();
 
     expect(mockExec).toHaveBeenCalledWith(
-      "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
+      "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
     );
     expect(readFileSpy).toHaveBeenCalledTimes(2);
     expect(loggerSpy).toHaveBeenCalledWith(
-      "Error running tests, most likely due to failing tests of coverage thresholds not being met.",
       new Error("Test failure")
     );
   });
@@ -181,7 +180,7 @@ describe("Logger Tests", () => {
     await expect(logTestResults()).rejects.toThrow("File read failure");
 
     expect(mockExec).toHaveBeenCalledWith(
-      "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --silent --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
+      "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
     );
     expect(readFileSpy).toHaveBeenCalledTimes(1);
     expect(loggerSpy).toHaveBeenCalledWith(new Error("File read failure"));
