@@ -62,6 +62,24 @@ describe("getGithubRepo", () => {
     expect(logger.info).toBeCalledWith("Invalid URL");
     expect(repo).toBeNull();
   });
+
+  it("should return null if given a bad url containing npmjs", async () => {
+    const invalidUrl = "https://www.npmjs.com/package/randomjunkasdfasdf";
+
+    const repo = await getGithubRepo(invalidUrl);
+
+    expect(logger.info).toBeCalledWith("Invalid URL");
+    expect(repo).toBeNull();
+  });
+
+  it("should return null if given a bad url containing github - Owner not exist", async () => {
+    const invalidUrl = "https://github.com/asivatha*sdasdsa/ECE461-group31";
+
+    const repo = await getGithubRepo(invalidUrl);
+
+    expect(repo).toBeNull();
+  });
+
 });
 
 describe("processURLs", () => {

@@ -5,7 +5,9 @@ import { calculateCorrectness } from "./correctness.ts";
 import { processURLs } from "../processURL.ts";
 import { calculateBusFactorScore } from "./busFactor.ts";
 import { getLogger } from "../logger.ts";
-//IMPORT BUS FACTOR
+import { promisify } from "util";
+import { exec } from "child_process";
+import { cloneRepo } from "../util.ts";
 
 const logger = getLogger();
 
@@ -19,11 +21,21 @@ export async function calculateNetScore(linkPath: string): Promise<void> {
   const results = await processURLs(linkPath);
 
   for (const { packageName, owner, url } of results) {
-    const licenseScore = await calculateLicenseScore(owner, packageName);
-    const rampUpScore = await calculateRampUpScore(owner, packageName);
+    const repoDir = await cloneRepo(`https://github.com/${owner}/${packageName}.git`, packageName);
+    
+    const execAsync = promisify(exec);
+    const { stdout } = await execAsync(`npx cloc --json ${repoDir}`);
+    const clocData = JSON.parse(stdout);
+    const jsLines = clocData.JavaScript?.code || 0;
+    const tsLines = clocData.TypeScript?.code || 0;
+    const totalLinesCorrectness = jsLines + tsLines;
+    const totalLinesRamp = clocData.SUM?.code || 0;
+
+    const licenseScore = repoDir ? await calculateLicenseScore(owner, packageName, repoDir) : 0;
+    const rampUpScore = repoDir ? await calculateRampUpScore(owner, packageName, repoDir, totalLinesRamp) : 0;
     const responsiveMaintainerScore = await calculateResponsiveMaintainerScore(owner, packageName);
     const busFactor = await calculateBusFactorScore(owner, packageName);
-    const correctness = await calculateCorrectness(owner, packageName);
+    const correctness = repoDir ? await calculateCorrectness(repoDir, totalLinesCorrectness) : 0;
 
     const netScore =
       0.3 * licenseScore + 0.1 * rampUpScore + 0.15 * responsiveMaintainerScore + 0.15 * busFactor + 0.3 * correctness;

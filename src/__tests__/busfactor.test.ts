@@ -26,6 +26,11 @@ describe("calculateBusFactorScore", () => {
     vi.clearAllMocks();
   });
 
+  it("should fail and return 0 if invalid repository", async () => {
+    const score = await calculateBusFactorScore("", "");
+    expect(score).toEqual(0);
+  });
+
   it("should return a low bus factor score when no authors", async () => {
     const mockGraphQLResponse = {
       repository: {

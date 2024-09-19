@@ -1,20 +1,14 @@
-import { cloneRepo } from "../util.ts";
 import { ESLint } from "eslint";
 import { getLogger } from "../logger.ts";
-import { exec } from "child_process";
-import { promisify } from "util";
 
 const logger = getLogger();
 
-export async function calculateCorrectness(repoOwner: string, repoName: string): Promise<number> {
-  const repoDir = await cloneRepo(`https://github.com/${repoOwner}/${repoName}.git`, repoName);
-  if (!repoDir) return 0;
-  const eslintScore = await calculateESLintScore(repoDir);
+export async function calculateCorrectness(repoDir: string, totalLines: number): Promise<number> {
+  const eslintScore = await calculateESLintScore(repoDir, totalLines);
   return eslintScore;
 }
 
-async function calculateESLintScore(repoDir: string): Promise<number> {
-  const execAsync = promisify(exec);
+async function calculateESLintScore(repoDir: string, totalLines: number): Promise<number> {
   try {
     const eslint = new ESLint({ ignore: false });
     const results = await eslint.lintFiles([`${repoDir}/**/*.{js,ts,tsx}`]);
@@ -25,12 +19,6 @@ async function calculateESLintScore(repoDir: string): Promise<number> {
       totalErrors += result.errorCount;
       totalWarnings += result.warningCount;
     }
-
-    const { stdout } = await execAsync(`npx cloc --json ${repoDir}`);
-    const clocData = JSON.parse(stdout);
-    const jsLines = clocData.JavaScript?.code || 0;
-    const tsLines = clocData.TypeScript?.code || 0;
-    const totalLines = jsLines + tsLines;
 
     if (totalLines === 0) {
       logger.debug(`No lines of code found in ${repoDir}`);

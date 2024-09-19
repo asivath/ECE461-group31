@@ -38,6 +38,9 @@ vi.mock("../logger.ts", () => {
     })
   };
 });
+vi.mock("../util.ts", () => ({
+  cloneRepo: vi.fn().mockResolvedValue("mockRepoDir")
+}));
 
 describe("calculateLicenseScore", () => {
   const logger = getLogger();
@@ -54,7 +57,7 @@ describe("calculateLicenseScore", () => {
       }
     });
 
-    const result = await calculateLicenseScore("owner", "repo");
+    const result = await calculateLicenseScore("owner", "repo", "mockRepoDir");
     expect(logger.info).toHaveBeenCalledWith("License found in GraphQL");
     expect(result).toBe(1);
   });
@@ -62,7 +65,7 @@ describe("calculateLicenseScore", () => {
   it("should return 1 when the license is found in README.md", async () => {
     vi.spyOn(fsPromises, "readFile").mockResolvedValueOnce("Some content with MIT license information.");
 
-    const result = await calculateLicenseScore("owner", "repo");
+    const result = await calculateLicenseScore("owner", "repo", "mockRepoDir");
     expect(logger.info).toHaveBeenCalledWith("License found in README.md");
     expect(result).toBe(1);
   });
@@ -70,7 +73,7 @@ describe("calculateLicenseScore", () => {
   it("should return 1 when the license is found in package.json", async () => {
     vi.spyOn(fsPromises, "readFile").mockResolvedValueOnce("").mockResolvedValueOnce('{ "license": "MIT" }');
 
-    const result = await calculateLicenseScore("owner", "repo");
+    const result = await calculateLicenseScore("owner", "repo", "mockRepoDir");
     expect(logger.info).toHaveBeenCalledWith("License found in package.json");
     expect(result).toBe(1);
   });
@@ -80,7 +83,7 @@ describe("calculateLicenseScore", () => {
       .mockResolvedValueOnce("Some content without any license information.")
       .mockResolvedValueOnce("");
 
-    const result = await calculateLicenseScore("owner", "repo");
+    const result = await calculateLicenseScore("owner", "repo", "mockRepoDir");
     expect(result).toBe(0);
   });
 
@@ -89,7 +92,7 @@ describe("calculateLicenseScore", () => {
 
     vi.spyOn(fsPromises, "readFile").mockResolvedValueOnce("");
 
-    const result = await calculateLicenseScore("owner", "repo");
+    const result = await calculateLicenseScore("owner", "repo", "mockRepoDir");
     expect(result).toBe(0);
   });
 
@@ -104,7 +107,7 @@ describe("calculateLicenseScore", () => {
 
     vi.spyOn(fsPromises, "readFile").mockRejectedValueOnce(new Error("README.md not found"));
 
-    const result = await calculateLicenseScore("owner", "repo");
+    const result = await calculateLicenseScore("owner", "repo", "mockRepoDir");
     expect(result).toBe(0);
   });
 
@@ -113,7 +116,7 @@ describe("calculateLicenseScore", () => {
       .mockResolvedValueOnce("")
       .mockRejectedValueOnce(new Error("package.json not found"));
 
-    const result = await calculateLicenseScore("owner", "repo");
+    const result = await calculateLicenseScore("owner", "repo", "mockRepoDir");
     expect(result).toBe(0);
   });
 });
