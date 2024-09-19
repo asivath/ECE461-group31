@@ -15,7 +15,6 @@ const logger = getLogger();
  * Calculate the net score of a repository and print it to standard out
  * @param repoOwner The owner of the repository
  * @param repoName The name of the repository
- * @returns Nothing
  */
 export async function calculateNetScore(linkPath: string): Promise<void> {
   const results = await processURLs(linkPath);
@@ -56,23 +55,23 @@ export async function calculateNetScore(linkPath: string): Promise<void> {
       0.3 * licenseScore + 0.1 * rampUpScore + 0.15 * responsiveMaintainerScore + 0.15 * busFactor + 0.3 * correctness;
 
     const netEnd = Date.now();
-    const netLatency = (netEnd - netStart) / 1000; // Convert to seconds
+    const netLatency = (netEnd - netStart) / 1000;
 
     logger.console(
       JSON.stringify({
         URL: url.trim(),
         NetScore: parseFloat(netScore.toFixed(2)),
-        NetScore_Latency: parseFloat(netLatency.toFixed(3)), // Converted to seconds
+        NetScore_Latency: parseFloat(netLatency.toFixed(3)),
         RampUp: parseFloat(rampUpScore.toFixed(2)),
-        RampUp_Latency: parseFloat(rampUpLatency.toFixed(3)), // Converted to seconds
+        RampUp_Latency: parseFloat(rampUpLatency.toFixed(3)),
         Correctness: parseFloat(correctness.toFixed(2)),
-        Correctness_Latency: parseFloat(correctnessLatency.toFixed(3)), // Converted to seconds
+        Correctness_Latency: parseFloat(correctnessLatency.toFixed(3)),
         BusFactor: parseFloat(busFactor.toFixed(2)),
-        BusFactor_Latency: parseFloat(busFactorLatency.toFixed(3)), // Converted to seconds
+        BusFactor_Latency: parseFloat(busFactorLatency.toFixed(3)),
         ResponsiveMaintainer: parseFloat(responsiveMaintainerScore.toFixed(2)),
-        ResponsiveMaintainer_Latency: parseFloat(responsiveMaintainerLatency.toFixed(3)), // Converted to seconds
+        ResponsiveMaintainer_Latency: parseFloat(responsiveMaintainerLatency.toFixed(3)),
         License: parseFloat(licenseScore.toFixed(2)),
-        License_Latency: parseFloat(licenseLatency.toFixed(3)) // Converted to seconds
+        License_Latency: parseFloat(licenseLatency.toFixed(3))
       })
     );
   }
@@ -82,6 +81,6 @@ async function calculateWithLatency(calculateFn: () => Promise<number>): Promise
   const startTime = Date.now();
   const score = await calculateFn();
   const endTime = Date.now();
-  const latency = (endTime - startTime) / 1000; // Convert to seconds
+  const latency = (endTime - startTime) / 1000;
   return { score, latency };
 }
