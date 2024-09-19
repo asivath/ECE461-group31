@@ -122,6 +122,28 @@ describe("calculateResponsiveMaintainerScore", () => {
     );
   });
 
+  it("should return a score 0.5 if there are no issues", async () => {
+    const mockGraphQLResponse = {
+      repository: {
+        issues: {
+          edges: []
+        },
+        allIssues: {
+          totalCount: 0
+        },
+        totalClosedIssues: {
+          totalCount: 0
+        }
+      }
+    };
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValueOnce(mockGraphQLResponse);
+
+    const score = await calculateResponsiveMaintainerScore("repoOwner", "repoName");
+
+    expect(score).toBe(0.5);
+    expect(logger.debug).toHaveBeenCalledWith("For repository repoOwner/repoName, no issues found, assigning score 0.5");
+  });
+
   it("should return a score of 0 if there is an error", async () => {
     vi.mocked(graphqlClientModule.graphqlClient.request).mockRejectedValueOnce(new Error("GraphQL Error"));
 

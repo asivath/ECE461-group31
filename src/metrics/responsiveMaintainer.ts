@@ -20,7 +20,12 @@ export async function calculateResponsiveMaintainerScore(repoOwner: string, repo
     });
 
     const medianResponseTime = calculateMedianResponseTime(data.repository.issues.edges);
-    const responseTimeFactor = Math.min(1, 7 / medianResponseTime);
+    if (medianResponseTime === -1) {
+      logger.debug(`For repository ${repoOwner}/${repoName}, no issues found, assigning score 0.5`);
+      return 0.5;
+    }
+  
+    const responseTimeFactor = medianResponseTime == 0 ? 1 : Math.min(1, 7 / medianResponseTime);
 
     const totalIssues = data.repository.allIssues.totalCount;
     const closedIssues = data.repository.totalClosedIssues.totalCount;
@@ -39,6 +44,10 @@ export async function calculateResponsiveMaintainerScore(repoOwner: string, repo
 }
 
 function calculateMedianResponseTime(issues: { node: { createdAt: string; closedAt: string } }[]): number {
+  if (issues.length === 0) {
+    return -1;
+  }
+
   const responseTimes = issues.map((issue) => {
     const createdAt = new Date(issue.node.createdAt);
     const closedAt = new Date(issue.node.closedAt);
