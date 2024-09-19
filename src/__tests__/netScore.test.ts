@@ -76,9 +76,6 @@ describe("calculateNetScore", () => {
 
     await calculateNetScore("path/to/url_file.txt");
 
-    // Log the recorded calls to see what's happening
-    console.log("Log calls:", logSpy.mock.calls);
-
     // Verify that the correct functions were called with expected arguments
     expect(processURLs).toHaveBeenCalledWith("path/to/url_file.txt");
     expect(cloneRepo).toHaveBeenCalledWith("https://github.com/test-owner/test-package.git", "test-package");

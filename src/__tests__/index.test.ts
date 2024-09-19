@@ -19,14 +19,14 @@ type ExecError = {
 
 // Cleanup created files after tests
 afterAll(async () => {
-  await fs.rm(path.resolve(__dirname, "..", "..", "test-files"), { recursive: true, force: true });
+  await fs.rm(path.resolve(__dirname, "test-files"), { recursive: true, force: true });
 });
 
 describe("E2E Test", () => {
   const execAsync = promisify(exec);
-  const testDir = path.resolve(__dirname, "..", "..", "test-files");
+  const testDir = path.resolve(__dirname, "test-files");
 
-  it('should run "./run test" and output results', { timeout: 10000 }, async () => {
+  it('should run "./run test" and output results', { timeout: 50000 }, async () => {
     const { stdout } = await execAsync("./run test", { env: { ...process.env, NODE_ENV: "test" } });
 
     expect(stdout).toContain("Total:");

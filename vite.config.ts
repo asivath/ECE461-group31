@@ -1,9 +1,10 @@
+import path from "path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   server: {
     watch: {
-      ignored: ["repos"]
+      ignored: [path.resolve(__dirname, "repos")]
     }
   },
   test: {
@@ -20,6 +21,6 @@ export default defineConfig({
       ignoreEmptyLines: true,
       reportOnFailure: true
     },
-    hookTimeout: 30000
+    hookTimeout: 30000,
   }
 });
