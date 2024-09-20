@@ -76,7 +76,7 @@ The project can be configured via the `.env` file. Key configurations include:
 - **LOG_FILE=PATH_TO_LOG_FILE**
 - **LOG_LEVEL**
 
-Without these, the program will not make valid API calls or log properly.
+Without the first two, the program will not make valid API calls or log properly.
 
 ## Build and Version Control
 
@@ -96,7 +96,7 @@ There are no build steps for this project; it can be run directly using `npm sta
 Run the tests using either of the following commands:
 
 ```bash
-npm run test
+npm test
 npm run test:watch
 ```
 test:watch will rerun tests whenever changes are detected in the files
