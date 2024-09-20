@@ -8,9 +8,15 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { calculateNetScore } from "./metrics/netScore.ts";
 import "dotenv/config";
+import { validateGithubToken } from "./util.ts";
 
 if (!process.env.LOG_FILE || !process.env.GITHUB_TOKEN) {
   console.error("Missing environment variables");
+  exit(1);
+}
+
+if (!(await validateGithubToken())) {
+  console.error("Invalid GitHub token");
   exit(1);
 }
 
