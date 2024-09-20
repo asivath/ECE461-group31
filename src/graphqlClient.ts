@@ -3,7 +3,6 @@
  */
 import { GraphQLClient, gql } from "graphql-request";
 import "dotenv/config";
-import { getLogger } from "./logger.ts";
 
 const endpoint = "https://api.github.com/graphql";
 
@@ -12,33 +11,6 @@ export const graphqlClient = new GraphQLClient(endpoint, {
     Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
   }
 });
-
-/**
- * Validate the GitHub token by making a query to the GitHub API
- * @returns true if the GitHub token is valid, false otherwise
- */
-export const validateGithubToken = async (): Promise<boolean> => {
-  const logger = getLogger();
-  const validateTokenQuery = `
-    query {
-      viewer {
-        login
-      }
-    }
-  `;
-  try {
-    const response: { viewer: { login: string } } = await graphqlClient.request(validateTokenQuery);
-    if (response.viewer.login) {
-      logger.info("GitHub token is valid");
-      return true;
-    } else {
-      logger.info("GitHub token is invalid");
-    }
-  } catch (error) {
-    logger.info("Error validating GitHub token:", error);
-  }
-  return false;
-};
 
 export const GET_VALUES_FOR_LICENSE = gql`
   query getLicenseInfo($repoOwner: String!, $repoName: String!) {

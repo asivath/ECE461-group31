@@ -6,6 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import { getLogger } from "./logger.js";
+import { graphqlClient } from "./graphqlClient.js";
 
 const logger = getLogger();
 
@@ -50,3 +51,30 @@ export function isValidFilePath(filePath: string): boolean {
   const resolvedPath = path.resolve(filePath);
   return path.isAbsolute(resolvedPath) && !filePath.includes("..");
 }
+
+/**
+ * Validate the GitHub token by making a query to the GitHub API
+ * @returns true if the GitHub token is valid, false otherwise
+ */
+export const validateGithubToken = async (): Promise<boolean> => {
+  const logger = getLogger();
+  const validateTokenQuery = `
+    query {
+      viewer {
+        login
+      }
+    }
+  `;
+  try {
+    const response: { viewer: { login: string } } = await graphqlClient.request(validateTokenQuery);
+    if (response.viewer.login) {
+      logger.info("GitHub token is valid");
+      return true;
+    } else {
+      logger.info("GitHub token is invalid");
+    }
+  } catch (error) {
+    logger.info("Error validating GitHub token:", error);
+  }
+  return false;
+};

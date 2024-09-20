@@ -8,7 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { calculateNetScore } from "./metrics/netScore.ts";
 import "dotenv/config";
-import { validateGithubToken } from "./graphqlClient.ts";
+import { validateGithubToken } from "./util.ts";
 
 if (!process.env.LOG_FILE || !process.env.GITHUB_TOKEN) {
   console.error("Missing environment variables");

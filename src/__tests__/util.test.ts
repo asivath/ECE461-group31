@@ -8,6 +8,8 @@ import { simpleGit } from "simple-git";
 import { getLogger } from "../logger.ts";
 import path from "path";
 import { fileURLToPath } from "url";
+import { validateGithubToken } from "../util.ts";
+import * as graphqlClientModule from "../graphqlClient.ts";
 
 vi.mock("fs/promises");
 vi.mock("simple-git");
@@ -17,6 +19,15 @@ vi.mock("../logger.ts", () => {
       debug: vi.fn(),
       info: vi.fn()
     })
+  };
+});
+vi.mock("../graphqlClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof graphqlClientModule>();
+  return {
+    ...actual,
+    graphqlClient: {
+      request: vi.fn()
+    }
   };
 });
 
@@ -87,5 +98,36 @@ describe("isValidFilePath", async () => {
   it("should return false for invalid file paths", () => {
     expect(isValidFilePath("../path/to/file")).toBe(false);
     expect(isValidFilePath("../../cwd/password")).toBe(false);
+  });
+});
+
+describe("validateGithubToken", () => {
+  const logger = getLogger();
+
+  it("should return true if the GitHub token is valid", async () => {
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValueOnce({ viewer: { login: "user" } });
+
+    const result = await validateGithubToken();
+
+    expect(result).toBe(true);
+    expect(logger.info).toHaveBeenCalledWith("GitHub token is valid");
+  });
+
+  it("should return false if the GitHub token is invalid", async () => {
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockResolvedValueOnce({ viewer: { login: "" } });
+
+    const result = await validateGithubToken();
+
+    expect(result).toBe(false);
+    expect(logger.info).toHaveBeenCalledWith("GitHub token is invalid");
+  });
+
+  it("should return false if there is an error", async () => {
+    vi.mocked(graphqlClientModule.graphqlClient.request).mockRejectedValueOnce(new Error("GraphQL Error"));
+
+    const result = await validateGithubToken();
+
+    expect(result).toBe(false);
+    expect(logger.info).toHaveBeenCalledWith("GitHub token is invalid");
   });
 });
