@@ -8,15 +8,15 @@
     "lint": "eslint '**/*.{ts,mjs,json}' --fix",
     "format": "prettier --write '**/*.{ts,mjs,json}'",
     "quality": "npm run format && npm run lint",
-    "test": "vitest run; rimraf logCoverage",
-    "test:watch": "vitest; rimraf logCoverage",
-    "test:coverage": "vitest run --coverage; rimraf logCoverage",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:cicd": "vitest run --coverage --no-color"
   },
   "keywords": [],
   "author": "Aditya Sivathanu, Kevin Chang, Ellis Selznick",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
     "@types/eslint__eslintrc": "^2.1.2",
@@ -25,25 +25,20 @@
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
     "@vitest/coverage-v8": "^2.0.5",
-    "eslint": "^9.9.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-security": "^3.0.1",
-    "globals": "^15.9.0",
-    "prettier": "^3.3.3",
-    "rimraf": "^6.0.1",
-    "tsx": "^4.19.0",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.3.0",
-    "vitest": "^2.0.5"
-  },
-  "dependencies": {
-    "@octokit/rest": "^21.0.2",
     "cloc": "^2.2.0-cloc",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
+    "eslint": "^9.9.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-security": "^3.0.1",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.0",
+    "prettier": "^3.3.3",
     "simple-git": "^3.26.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.3.0",
+    "vitest": "^2.0.5",
     "winston": "^3.14.2"
   }
 }
