@@ -9,12 +9,12 @@ import { fileURLToPath } from "url";
 import { calculateNetScore } from "./metrics/netScore.ts";
 import "dotenv/config";
 
-const logger = getLogger();
-
 if (!process.env.LOG_FILE || !process.env.GITHUB_TOKEN) {
   console.error("Missing environment variables");
   exit(1);
 }
+
+const logger = getLogger();
 
 const args = process.argv.slice(2);
 
