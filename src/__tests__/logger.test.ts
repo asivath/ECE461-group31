@@ -166,9 +166,7 @@ describe("Logger Tests", () => {
       "npx vitest run --coverage --coverage.reportsDirectory=./logCoverage --reporter=json --outputFile=logCoverage/test-results.json --exclude src/__tests__/index.test.ts"
     );
     expect(readFileSpy).toHaveBeenCalledTimes(2);
-    expect(loggerSpy).toHaveBeenCalledWith(
-      new Error("Test failure")
-    );
+    expect(loggerSpy).toHaveBeenCalledWith(new Error("Test failure"));
   });
 
   it("should log an error when reading test results fail and throw", async () => {
