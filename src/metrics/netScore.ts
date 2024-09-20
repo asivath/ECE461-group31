@@ -20,16 +20,15 @@ const logger = getLogger();
  * @param repoName The name of the repository
  */
 export async function calculateNetScore(linkPath: string): Promise<void> {
+  const netStart = Date.now();
   const results = await processURLs(linkPath);
 
   for (const { packageName, owner, url } of results) {
-    const netStart = Date.now();
-
     const repoDir = await cloneRepo(`https://github.com/${owner}/${packageName}.git`, packageName);
 
     let totalLinesCorrectness = 0;
     let totalLinesRamp = 0;
-    if (repoDir) {  
+    if (repoDir) {
       try {
         const execAsync = promisify(exec);
         const { stdout } = await execAsync(`npx cloc --json ${repoDir}`);
