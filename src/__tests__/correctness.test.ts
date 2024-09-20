@@ -79,7 +79,7 @@ describe("calculateCorrectness", () => {
 
     await calculateCorrectness("mockRepoDir", 20000);
 
-    const expectedScore = 1 - (3 * 5 + 2) / 20000;
+    const expectedScore = 1 - (2 * 5 + 2) / 20000;
     expect(logger.debug).toHaveBeenCalledWith(
       `ESLint errors: 5, warnings: 2, total lines: 20000, final score: ${expectedScore} for mockRepoDir`
     );
@@ -104,7 +104,7 @@ describe("calculateCorrectness", () => {
 
     await calculateCorrectness("mockRepoDir", 20000);
 
-    const expectedScore = Math.max(0, Math.min(1, 1 - (3 * 100000 + 5000) / 20000));
+    const expectedScore = Math.max(0, Math.min(1, 1 - (2 * 100000 + 5000) / 20000));
     expect(logger.debug).toHaveBeenCalledWith(
       `ESLint errors: 100000, warnings: 5000, total lines: 20000, final score: ${expectedScore} for mockRepoDir`
     );

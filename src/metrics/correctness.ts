@@ -43,7 +43,7 @@ async function calculateESLintScore(repoDir: string, totalLines: number): Promis
       return 0;
     }
 
-    const eslintScore = Math.max(0, Math.min(1, 1 - (3 * totalErrors + totalWarnings) / totalLines));
+    const eslintScore = Math.max(0, Math.min(1, 1 - (2 * totalErrors + totalWarnings) / totalLines));
     logger.debug(
       `ESLint errors: ${totalErrors}, warnings: ${totalWarnings}, total lines: ${totalLines}, final score: ${eslintScore} for ${repoDir}`
     );
