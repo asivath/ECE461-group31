@@ -67,7 +67,6 @@ const Licenses = new Set([
   "University of Illinois/NCSA Open Source License",
   "NCSA",
   "The Unlicense",
-  "Unlicense",
   "Zlib",
   "zLib License"
 ]);
@@ -108,7 +107,7 @@ async function fetchLicenseFromReadme(repoDir: string): Promise<string | null> {
 
     for (const licenseName of Licenses) {
       // eslint-disable-next-line security/detect-non-literal-regexp -- licenseName comes from trusted source
-      if (new RegExp(licenseName, "gi").test(readmeContent)) {
+      if (new RegExp(`\\b${licenseName}\\b`, "i").test(readmeContent)) {
         return licenseName;
       }
     }
@@ -132,7 +131,7 @@ async function fetchLicenseFromPackageJson(repoDir: string): Promise<string | nu
     const packageJson = await readFile(packageJsonPath, "utf8");
     const packageJsonObj = JSON.parse(packageJson);
     const license = packageJsonObj.license;
-    return license;
+    return Licenses.has(license) ? license : null;
   } catch (readError) {
     logger.info(`package.json not found or could not be read: ${readError}`);
     return null;
