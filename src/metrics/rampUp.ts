@@ -32,7 +32,7 @@ export async function calculateRampUpScore(
     const documentationWeight = await calculateDocumentationWeight(data, repoOwner, repoName);
     const targetTime = repoDir ? await calculateTargetTime(repoDir, loc) : 21;
     const constant = targetTime / Math.log(1.05);
-    const averageTimeValue = Math.max(Math.exp(-(averageDays - targetTime) / constant), 0.3);
+    const averageTimeValue = (Math.exp(-(averageDays - targetTime) / constant));
     const score = Math.min(1, averageTimeValue * documentationWeight);
     logger.debug(
       `Parts of the Ramp Up score: Main part: ${averageTimeValue}, Constant: ${constant}, Documentation Weight: ${documentationWeight}, Target Time: ${targetTime}`

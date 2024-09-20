@@ -16,8 +16,9 @@ const logger = getLogger();
 export async function getGithubRepo(url: string): Promise<returnRepo> {
   const trimmedUrl = url.trim();
 
-  const npmRegex = /npmjs\.com\/package\/(?<packageName>[a-z0-9\-_]+)/;
-  const githubRegex = /github\.com\/(?<owner>[a-zA-Z0-9\-_]+)\/(?<packageName>[a-zA-Z0-9\-_.]+)/;
+  const npmRegex = /npmjs\.com\/package\/(?<packageName>[^/]+)/;
+  const githubRegex = /github\.com\/(?<owner>[^/]+)\/(?<packageName>[^/]+)/;
+
 
   if (trimmedUrl.includes("npmjs.com")) {
     return handleNpmUrl(trimmedUrl, npmRegex, githubRegex);
