@@ -76,7 +76,7 @@ describe("getGithubRepo", () => {
   });
 
   it("should return null if given a bad url containing github - Owner not exist", async () => {
-    const invalidUrl = "https://github.com/asivatha*sdasdsa/ECE461-group31";
+    const invalidUrl = "https://github.com/asivatha";
 
     const repo = await getGithubRepo(invalidUrl);
 
