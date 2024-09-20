@@ -48,7 +48,6 @@ describe("Logger Tests", () => {
     debugSpy = vi.spyOn(logger, "debug");
     infoSpy = vi.spyOn(logger, "info");
     consoleLogSpy = vi.spyOn(console, "log");
-    await fs.writeFile(logFilePath, "");
   });
 
   afterEach(() => {
@@ -59,6 +58,7 @@ describe("Logger Tests", () => {
 
   it("Should log a debug message when logger.debug is called", async () => {
     const logMessage = "This is a debug message";
+    await fs.writeFile(logFilePath, "");
 
     logger.debug(logMessage);
 
@@ -71,6 +71,7 @@ describe("Logger Tests", () => {
 
   it("Should log an info message when logger.info is called", async () => {
     const logMessage = "This is an info message";
+    await fs.writeFile(logFilePath, "");
 
     logger.info(logMessage);
 
@@ -84,6 +85,7 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "1";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
 
     logger.debug("This is a debug message");
     logger.info("This is an info message");
@@ -96,6 +98,7 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "0";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
 
     logger.debug("This is a debug message");
     logger.info("This is an info message");
@@ -108,6 +111,7 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "1";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
 
     const message = {
       URL: "https://github.com/nullivex/nodist",
@@ -138,6 +142,7 @@ describe("Logger Tests", () => {
       .mockResolvedValueOnce(JSON.stringify({ numTotalTests: 10, numPassedTests: 8 }))
       .mockResolvedValueOnce(JSON.stringify({ total: { lines: { pct: 80 } } }));
     vi.spyOn(util, "promisify").mockReturnValueOnce(mockExec);
+    await fs.writeFile(logFilePath, "");
 
     await logTestResults();
 
@@ -159,6 +164,7 @@ describe("Logger Tests", () => {
       .mockResolvedValueOnce(JSON.stringify({ numTotalTests: 10, numPassedTests: 8 }))
       .mockResolvedValueOnce(JSON.stringify({ total: { lines: { pct: 80 } } }));
     vi.spyOn(util, "promisify").mockReturnValueOnce(mockExec);
+    await fs.writeFile(logFilePath, "");
 
     await logTestResults();
 
@@ -174,6 +180,7 @@ describe("Logger Tests", () => {
     const loggerSpy = vi.spyOn(logger, "debug");
     const readFileSpy = vi.spyOn(fsPromises, "readFile").mockRejectedValueOnce(new Error("File read failure"));
     vi.spyOn(util, "promisify").mockReturnValueOnce(mockExec);
+    await fs.writeFile(logFilePath, "");
 
     await expect(logTestResults()).rejects.toThrow("File read failure");
 
@@ -188,6 +195,7 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "3";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
 
     logger.console("This is a console message");
 
@@ -202,6 +210,8 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "1";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
+
     logger.console("This is a console message");
 
     expect(consoleLogSpy).toHaveBeenCalledWith("This is a console message");
@@ -214,6 +224,8 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "2";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
+
     logger.console("This is a console message");
 
     expect(consoleLogSpy).toHaveBeenCalledWith("This is a console message");
@@ -226,6 +238,7 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "1";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
 
     logger.info("This is an info message");
 
@@ -239,6 +252,7 @@ describe("Logger Tests", () => {
     process.env.LOG_LEVEL = "2";
     reinitializeLogger();
     logger = getLogger();
+    await fs.writeFile(logFilePath, "");
 
     logger.debug("This is a debug message");
 
