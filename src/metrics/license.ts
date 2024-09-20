@@ -143,6 +143,7 @@ async function fetchLicenseFromPackageJson(repoDir: string): Promise<string | nu
  * Calculate the license score of a repository. The score is based on the presence of a license in the repository.
  * @param repoOwner The owner of the repository
  * @param repoName The name of the repository
+ * @param repoDir The directory of the repository
  * @returns The license score of the repository
  */
 export async function calculateLicenseScore(

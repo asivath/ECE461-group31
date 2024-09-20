@@ -20,20 +20,27 @@ const logger = getLogger();
  * @param repoName The name of the repository
  */
 export async function calculateNetScore(linkPath: string): Promise<void> {
+  const netStart = Date.now();
   const results = await processURLs(linkPath);
 
   for (const { packageName, owner, url } of results) {
-    const netStart = Date.now();
-
     const repoDir = await cloneRepo(`https://github.com/${owner}/${packageName}.git`, packageName);
 
-    const execAsync = promisify(exec);
-    const { stdout } = await execAsync(`npx cloc --json ${repoDir}`);
-    const clocData = JSON.parse(stdout);
-    const jsLines = clocData.JavaScript?.code || 0;
-    const tsLines = clocData.TypeScript?.code || 0;
-    const totalLinesCorrectness = jsLines + tsLines;
-    const totalLinesRamp = clocData.SUM?.code || 0;
+    let totalLinesCorrectness = 0;
+    let totalLinesRamp = 0;
+    if (repoDir) {
+      try {
+        const execAsync = promisify(exec);
+        const { stdout } = await execAsync(`npx cloc --json ${repoDir}`);
+        const clocData = JSON.parse(stdout);
+        const jsLines = clocData.JavaScript?.code || 0;
+        const tsLines = clocData.TypeScript?.code || 0;
+        totalLinesCorrectness = jsLines + tsLines;
+        totalLinesRamp = clocData.SUM?.code || 0;
+      } catch (error) {
+        logger.info(`Error calculating lines of code: ${error}`);
+      }
+    }
 
     const [licenseScoreResult, rampUpScoreResult, responsiveMaintainerScoreResult, busFactorResult, correctnessResult] =
       await Promise.all([
@@ -82,8 +89,15 @@ export async function calculateNetScore(linkPath: string): Promise<void> {
  */
 async function calculateWithLatency(calculateFn: () => Promise<number>): Promise<{ score: number; latency: number }> {
   const startTime = Date.now();
-  const score = await calculateFn();
-  const endTime = Date.now();
-  const latency = (endTime - startTime) / 1000;
-  return { score, latency };
+  try {
+    const score = await calculateFn();
+    const endTime = Date.now();
+    const latency = (endTime - startTime) / 1000;
+    return { score, latency };
+  } catch (error) {
+    logger.info(`Error calculating score: ${error}`);
+    const endTime = Date.now();
+    const latency = (endTime - startTime) / 1000;
+    return { score: 0, latency: latency };
+  }
 }

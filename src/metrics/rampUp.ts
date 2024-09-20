@@ -12,6 +12,8 @@ const logger = getLogger();
  * Calculate the rampUp score of a repository. The score is based on the average days to first activity and the presence of a README and CONTRIBUTING file.
  * @param repoOwner The owner of the repository
  * @param repoName The name of the repository
+ * @param repoDir The directory of the repository
+ * @param loc The lines of code in the repository
  * @param firstForks The number of forks to fetch
  * @returns The rampUp score of the repository
  */
