@@ -42,7 +42,7 @@ export async function cloneRepo(repoUrl: string, repoName: string): Promise<stri
 }
 
 /**
- * Read a file and process the URLs within it
+ * Validate a file path by checking if it is an absolute path and does not contain ".."
  * @param filePath The path to the file to read
  * @returns Whether the path is valid
  */
